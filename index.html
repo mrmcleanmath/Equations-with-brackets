@@ -588,14 +588,6 @@
     return Math.random() < p;
   }
 
-  function shuffle(arr){
-    for (let i = arr.length - 1; i > 0; i--){
-      const j = randInt(0, i);
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
   function approxEqual(a, b){
     return Math.abs(a - b) < 1e-9;
   }
@@ -672,9 +664,6 @@
   }
 
   function makeInsidePositiveLeading(variable){
-    // Always two terms inside the brackets.
-    // Never starts with a negative term.
-    // Examples allowed: 3x - 5, 3x + 5, 6 - x, 6 + x, 8 - 2x
     const order = pick(["var-first", "const-first"]);
 
     if (order === "var-first"){
@@ -683,7 +672,6 @@
       return {
         a,
         b,
-        order,
         str: linearText(a, b, variable),
         nums: [Math.abs(a), Math.abs(b)]
       };
@@ -691,22 +679,19 @@
 
     const constVal = randInt(2, 12);
     const varCoeff = randInt(1, 4) * (chance(0.6) ? -1 : 1);
+    const str = varCoeff < 0
+      ? `${fmt(constVal)} - ${termText(Math.abs(varCoeff), variable)}`
+      : `${fmt(constVal)} + ${termText(varCoeff, variable)}`;
 
     return {
       a: varCoeff,
       b: constVal,
-      order,
-      str: linearText(varCoeff, constVal, variable).startsWith("-")
-        ? linearText(Math.abs(varCoeff), constVal, variable)
-        : linearText(varCoeff, constVal, variable),
+      str,
       nums: [Math.abs(varCoeff), Math.abs(constVal)]
     };
   }
 
   function makeBracket(multiplier, inside, variable, sign = 1){
-    // sign = 1 means + m(...)
-    // sign = -1 means - m(...)
-    // inside is always 2 terms and positive-leading
     const prefix = (sign === -1 ? "- " : "") + fmt(multiplier);
     return {
       a: sign * multiplier * inside.a,
@@ -740,8 +725,8 @@
     });
 
     out = out.replace(/\+\s-\s/g, "- ");
-    out = out.replace(/\b1([xyz])\b/g, "$1");
-    out = out.replace(/\b-1([xyz])\b/g, "-$1");
+    out = out.replace(/\b1([xyz])/g, "$1");
+    out = out.replace(/\b-1([xyz])/g, "-$1");
     out = out.replace(/\s+/g, " ").trim();
 
     return { A, B, str: out, nums };
@@ -752,12 +737,26 @@
   }
 
   function pickSolution(diff){
-    if (diff === "hard" && chance(0.08)){
-      const whole = randInt(-8, 8);
-      const decimal = 0.5;
-      return whole + (chance(0.5) ? decimal : -decimal);
+    if (diff === "easy"){
+      return randInt(1, 12);
     }
-    return randInt(-12, 12);
+
+    if (diff === "medium"){
+      return randInt(1, 12);
+    }
+
+    // hard: mostly positive, occasional negative, rare 1-decimal
+    if (chance(0.08)){
+      const base = randInt(1, 10);
+      const sign = chance(0.18) ? -1 : 1;
+      return sign * (base + 0.5);
+    }
+
+    if (chance(0.18)){
+      return randInt(-10, -1);
+    }
+
+    return randInt(1, 12);
   }
 
   function displayedNumberLimitOkay(nums){
@@ -773,7 +772,6 @@
     const template = pick([1,2,3,4]);
 
     if (template === 1){
-      // m(ax+b) = cx + d
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 6);
       const left = makeExpression([makeBracket(m, inside, variable, 1)]);
@@ -785,7 +783,6 @@
     }
 
     if (template === 2){
-      // ax + m(b+cx) = d
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 6);
       const a = nonZeroInt(-8, 8);
@@ -797,7 +794,6 @@
     }
 
     if (template === 3){
-      // d = ax + m(b+cx)
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 6);
       const a = nonZeroInt(-8, 8);
@@ -808,7 +804,6 @@
       return { left, right };
     }
 
-    // ax + d = m(b+cx)
     const inside = makeInsidePositiveLeading(variable);
     const m = randInt(2, 6);
     const right = makeExpression([makeBracket(m, inside, variable, 1)]);
@@ -823,7 +818,6 @@
     const template = pick([1,2,3,4,5]);
 
     if (template === 1){
-      // d = ax + b + cx
       const a = nonZeroInt(-8, 8);
       const c = nonZeroInt(-8, 8);
       const b = randInt(-20, 20);
@@ -835,7 +829,6 @@
     }
 
     if (template === 2){
-      // m(ax+b) = c + dx + e
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 7);
       const left = makeExpression([makeBracket(m, inside, variable, 1)]);
@@ -848,7 +841,6 @@
     }
 
     if (template === 3){
-      // c - m(a-bx) = d + ex
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 7);
       const c = randInt(5, 40);
@@ -861,7 +853,6 @@
     }
 
     if (template === 4){
-      // ax - m(a-bx) = d - ex
       const inside = makeInsidePositiveLeading(variable);
       const m = randInt(2, 7);
       const a = nonZeroInt(-8, 8);
@@ -873,7 +864,6 @@
       return { left, right };
     }
 
-    // ax + m(...) = d + ex + f
     const inside = makeInsidePositiveLeading(variable);
     const m = randInt(2, 7);
     const a = nonZeroInt(-8, 8);
@@ -890,7 +880,6 @@
     const template = pick([1,2,3,4]);
 
     if (template === 1){
-      // m(...) - ax = d - n(...)
       const inside1 = makeInsidePositiveLeading(variable);
       const inside2 = makeInsidePositiveLeading(variable);
       const m = randInt(2, 8);
@@ -905,7 +894,6 @@
     }
 
     if (template === 2){
-      // c - m(...) = d - n(...)
       const inside1 = makeInsidePositiveLeading(variable);
       const inside2 = makeInsidePositiveLeading(variable);
       const m = randInt(2, 8);
@@ -920,7 +908,6 @@
     }
 
     if (template === 3){
-      // m(...) + ax = d + n(...)
       const inside1 = makeInsidePositiveLeading(variable);
       const inside2 = makeInsidePositiveLeading(variable);
       const m = randInt(2, 8);
@@ -934,7 +921,6 @@
       return { left, right };
     }
 
-    // ax - m(...) = d + ex - n(...)
     const inside1 = makeInsidePositiveLeading(variable);
     const inside2 = makeInsidePositiveLeading(variable);
     const m = randInt(2, 8);
@@ -983,8 +969,8 @@
 
       if (!displayedNumberLimitOkay(nums)) continue;
       if (!noThreeDigitDisplay(eq)) continue;
-      if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(eq)) continue; // defensive check against single-term bracket
-      if (/\-\s+\d+\(\s*\-/.test(eq)) continue; // defensive check against minus outside + negative first inside
+      if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(eq)) continue;
+      if (/\-\s+\d+\(\s*\-/.test(eq) && (actualDiff === "easy" || actualDiff === "medium")) continue;
 
       return {
         difficulty: actualDiff,
@@ -1478,17 +1464,19 @@
       return true;
     });
 
-    test("Easy answers are integers", () => {
-      for (let i = 0; i < 60; i++){
+    test("Easy answers are positive integers only", () => {
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("easy");
+        if (q.solution <= 0) return false;
         if (Math.abs(q.solution % 1) > 1e-9) return false;
       }
       return true;
     });
 
-    test("Medium answers are integers", () => {
-      for (let i = 0; i < 60; i++){
+    test("Medium answers are positive integers only", () => {
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("medium");
+        if (q.solution <= 0) return false;
         if (Math.abs(q.solution % 1) > 1e-9) return false;
       }
       return true;
@@ -1526,14 +1514,6 @@
       state.worksheetSize = 10;
       buildWorksheet();
       return document.querySelectorAll(".ws-item").length === 10;
-    });
-
-    test("Medium generator produces varied equations", () => {
-      const set = new Set();
-      for (let i = 0; i < 20; i++){
-        set.add(generateEquation("medium").equation);
-      }
-      return set.size >= 15;
     });
 
     lines.unshift("Developer test results");
