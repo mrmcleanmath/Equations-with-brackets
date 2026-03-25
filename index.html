@@ -10,11 +10,11 @@
     --panel:#ffffff;
     --panel-soft:#eef3fb;
     --text:#17202a;
-    --muted:#607080;
-    --border:#d8e1ea;
+    --muted:#667788;
+    --border:#d7e0ea;
     --accent:#2f67d8;
     --accent-dark:#1f4fb5;
-    --good:#2f7d32;
+    --good:#1f7a35;
     --bad:#c62828;
     --warn:#9a6700;
     --shadow:0 10px 24px rgba(15,23,42,.08);
@@ -26,7 +26,7 @@
     --panel:#111;
     --panel-soft:#1a1a1a;
     --text:#fff;
-    --muted:#d5d5d5;
+    --muted:#d6d6d6;
     --border:#555;
     --accent:#ffcc00;
     --accent-dark:#ffcc00;
@@ -62,7 +62,7 @@
 
   .brand h1{
     margin:0 0 4px 0;
-    font-size:clamp(1.7rem, 3.1vw, 2.5rem);
+    font-size:clamp(1.7rem, 3vw, 2.5rem);
     line-height:1.1;
   }
 
@@ -107,7 +107,7 @@
     margin-right:2px;
   }
 
-  button, input, select{
+  button, input{
     font:inherit;
   }
 
@@ -128,33 +128,22 @@
   }
 
   .btn:hover{ transform:translateY(-1px); }
-
   .btn.active{
     background:var(--accent);
     color:#fff;
     border-color:var(--accent);
   }
-
   .btn.secondary{
     background:var(--panel-soft);
     color:var(--text);
   }
-
   .btn.good{
     background:var(--good);
     color:#fff;
     border-color:var(--good);
   }
 
-  .btn.bad{
-    background:var(--bad);
-    color:#fff;
-    border-color:var(--bad);
-  }
-
-  .mode-btn{
-    min-width:112px;
-  }
+  .mode-btn{ min-width:112px; }
 
   .main-area{
     display:grid;
@@ -237,9 +226,7 @@
   }
 
   @media (max-width:860px){
-    .bottom-grid{
-      grid-template-columns:1fr;
-    }
+    .bottom-grid{ grid-template-columns:1fr; }
   }
 
   .box{
@@ -411,7 +398,7 @@
     <p>Game mode and worksheet mode with true procedural generation.</p>
   </div>
 
-  <div class="toolbar" id="toolbar">
+  <div class="toolbar">
     <div class="toolbar-group">
       <button id="modeGameBtn" class="btn mode-btn active">Game</button>
       <button id="modeWorksheetBtn" class="btn mode-btn">Worksheet</button>
@@ -602,7 +589,7 @@
   }
 
   function shuffle(arr){
-    for(let i = arr.length - 1; i > 0; i--){
+    for (let i = arr.length - 1; i > 0; i--){
       const j = randInt(0, i);
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
@@ -614,9 +601,8 @@
   }
 
   function fmt(n){
-    if (Math.abs(n) < 1e-10) n = 0;
     const rounded = Math.round(n * 10) / 10;
-    if (Math.abs(rounded - Math.round(rounded)) < 1e-10) return String(Math.round(rounded));
+    if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
     return rounded.toFixed(1);
   }
 
@@ -630,91 +616,135 @@
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
+  function escapeHtml(s){
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function nonZeroInt(min, max){
+    let n = 0;
+    while (n === 0) n = randInt(min, max);
+    return n;
+  }
+
   function termText(coeff, variable){
     if (coeff === 1) return variable;
     if (coeff === -1) return "-" + variable;
     return fmt(coeff) + variable;
   }
 
-  function joinTerms(parts){
-    let out = "";
-    parts.forEach((part, i) => {
-      if (!part) return;
-      const negative = part.startsWith("-");
-      const clean = negative ? part.slice(1) : part;
-      if (out === ""){
-        out = negative ? "-" + clean : clean;
-      } else {
-        out += negative ? " - " + clean : " + " + clean;
-      }
-    });
-    return out || "0";
-  }
-
   function linearText(a, b, variable){
     const parts = [];
-    if (!approxEqual(a, 0)) parts.push(termText(a, variable));
-    if (!approxEqual(b, 0)) parts.push((b < 0 ? "-" : "") + fmt(Math.abs(b)));
-    return joinTerms(parts);
+    if (!approxEqual(a, 0)){
+      if (a === 1) parts.push(variable);
+      else if (a === -1) parts.push("-" + variable);
+      else parts.push(fmt(a) + variable);
+    }
+    if (!approxEqual(b, 0)){
+      const n = fmt(Math.abs(b));
+      if (parts.length === 0){
+        parts.push((b < 0 ? "-" : "") + n);
+      } else {
+        parts.push((b < 0 ? "- " : "+ ") + n);
+      }
+    }
+    return parts.join(" ") || "0";
+  }
+
+  function makeConst(value){
+    return {
+      a: 0,
+      b: value,
+      str: fmt(value),
+      nums: [Math.abs(value)]
+    };
   }
 
   function makeLinear(coeff, variable){
-    return { a:coeff, b:0, str:termText(coeff, variable), nums:[Math.abs(coeff)] };
-  }
-
-  function makeConst(c){
-    return { a:0, b:c, str:fmt(c), nums:[Math.abs(c)] };
-  }
-
-  function makeBracket(m, inA, inB, variable){
-    const inside = linearText(inA, inB, variable);
     return {
-      a: m * inA,
-      b: m * inB,
-      str: fmt(m) + "(" + inside + ")",
-      nums: [Math.abs(m), Math.abs(inA), Math.abs(inB)]
+      a: coeff,
+      b: 0,
+      str: termText(coeff, variable),
+      nums: [Math.abs(coeff)]
     };
   }
 
-  function makeNegBracket(m, inA, inB, variable){
-    const inside = linearText(inA, inB, variable);
+  function makeInsidePositiveLeading(variable){
+    // Always two terms inside the brackets.
+    // Never starts with a negative term.
+    // Examples allowed: 3x - 5, 3x + 5, 6 - x, 6 + x, 8 - 2x
+    const order = pick(["var-first", "const-first"]);
+
+    if (order === "var-first"){
+      const a = randInt(1, 4);
+      const b = randInt(1, 12) * (chance(0.5) ? 1 : -1);
+      return {
+        a,
+        b,
+        order,
+        str: linearText(a, b, variable),
+        nums: [Math.abs(a), Math.abs(b)]
+      };
+    }
+
+    const constVal = randInt(2, 12);
+    const varCoeff = randInt(1, 4) * (chance(0.6) ? -1 : 1);
+
     return {
-      a: -(m * inA),
-      b: -(m * inB),
-      str: "- " + fmt(m) + "(" + inside + ")",
-      nums: [Math.abs(m), Math.abs(inA), Math.abs(inB)]
+      a: varCoeff,
+      b: constVal,
+      order,
+      str: linearText(varCoeff, constVal, variable).startsWith("-")
+        ? linearText(Math.abs(varCoeff), constVal, variable)
+        : linearText(varCoeff, constVal, variable),
+      nums: [Math.abs(varCoeff), Math.abs(constVal)]
     };
   }
 
-  function exprFromTerms(terms){
-    let a = 0, b = 0;
+  function makeBracket(multiplier, inside, variable, sign = 1){
+    // sign = 1 means + m(...)
+    // sign = -1 means - m(...)
+    // inside is always 2 terms and positive-leading
+    const prefix = (sign === -1 ? "- " : "") + fmt(multiplier);
+    return {
+      a: sign * multiplier * inside.a,
+      b: sign * multiplier * inside.b,
+      str: prefix + "(" + inside.str + ")",
+      nums: [Math.abs(multiplier)].concat(inside.nums)
+    };
+  }
+
+  function makeExpression(terms){
+    let A = 0;
+    let B = 0;
     let nums = [];
-    terms.forEach(t => {
-      a += t.a;
-      b += t.b;
-      nums = nums.concat(t.nums || []);
-    });
+    let out = "";
 
-    let str = "";
     terms.forEach((t, i) => {
-      const piece = t.str.trim();
+      A += t.a;
+      B += t.b;
+      nums = nums.concat(t.nums || []);
+      const s = String(t.str).trim();
+
       if (i === 0){
-        str += piece;
-      } else if (piece.startsWith("- ")){
-        str += " - " + piece.slice(2);
-      } else if (piece.startsWith("-")){
-        str += " - " + piece.slice(1);
+        out += s;
+      } else if (s.startsWith("- ")){
+        out += " - " + s.slice(2);
+      } else if (s.startsWith("-")){
+        out += " - " + s.slice(1);
       } else {
-        str += " + " + piece;
+        out += " + " + s;
       }
     });
 
-    str = str.replace(/\+\s-\s/g, "- ");
-    str = str.replace(/\b1([xyz])\b/g, "$1");
-    str = str.replace(/\b-1([xyz])\b/g, "-$1");
-    str = str.replace(/\s+/g, " ").trim();
+    out = out.replace(/\+\s-\s/g, "- ");
+    out = out.replace(/\b1([xyz])\b/g, "$1");
+    out = out.replace(/\b-1([xyz])\b/g, "-$1");
+    out = out.replace(/\s+/g, " ").trim();
 
-    return { a, b, str, nums };
+    return { A, B, str: out, nums };
   }
 
   function chooseVariable(){
@@ -722,420 +752,284 @@
   }
 
   function pickSolution(diff){
-    if (diff === "hard" && chance(0.10)){
+    if (diff === "hard" && chance(0.08)){
       const whole = randInt(-8, 8);
-      const dec = pick([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]);
-      const sign = chance(0.5) ? 1 : -1;
-      return sign * (Math.abs(whole) + dec);
+      const decimal = 0.5;
+      return whole + (chance(0.5) ? decimal : -decimal);
     }
     return randInt(-12, 12);
   }
 
-  function bounds(diff){
-    if (diff === "easy"){
-      return {
-        coeffMax:14,
-        constMax:45,
-        allowedDisplayMax:99,
-        innerCoeffMax:4,
-        bracketMultMax:6
-      };
+  function displayedNumberLimitOkay(nums){
+    return nums.every(n => n <= 99 + 1e-9);
+  }
+
+  function noThreeDigitDisplay(eq){
+    const stripped = eq.replace(/\d\.\d/g, "");
+    return !/\b\d{3,}\b/.test(stripped);
+  }
+
+  function easyTemplate(variable, solution){
+    const template = pick([1,2,3,4]);
+
+    if (template === 1){
+      // m(ax+b) = cx + d
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 6);
+      const left = makeExpression([makeBracket(m, inside, variable, 1)]);
+      const c = nonZeroInt(-8, 8);
+      const d = left.A * solution + left.B - c * solution;
+      if (Math.abs(d) > 99 || approxEqual(c, 0)) return null;
+      const right = makeExpression([makeLinear(c, variable), makeConst(d)]);
+      return { left, right };
     }
-    if (diff === "medium"){
-      return {
-        coeffMax:14,
-        constMax:55,
-        allowedDisplayMax:99,
-        innerCoeffMax:4,
-        bracketMultMax:7
-      };
+
+    if (template === 2){
+      // ax + m(b+cx) = d
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 6);
+      const a = nonZeroInt(-8, 8);
+      const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
+      const d = left.A * solution + left.B;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d)]);
+      return { left, right };
     }
-    return {
-      coeffMax:14,
-      constMax:70,
-      allowedDisplayMax:99,
-      innerCoeffMax:4,
-      bracketMultMax:8
-    };
+
+    if (template === 3){
+      // d = ax + m(b+cx)
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 6);
+      const a = nonZeroInt(-8, 8);
+      const right = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
+      const d = right.A * solution + right.B;
+      if (Math.abs(d) > 99) return null;
+      const left = makeExpression([makeConst(d)]);
+      return { left, right };
+    }
+
+    // ax + d = m(b+cx)
+    const inside = makeInsidePositiveLeading(variable);
+    const m = randInt(2, 6);
+    const right = makeExpression([makeBracket(m, inside, variable, 1)]);
+    const a = nonZeroInt(-8, 8);
+    const d = right.A * solution + right.B - a * solution;
+    if (Math.abs(d) > 99) return null;
+    const left = makeExpression([makeLinear(a, variable), makeConst(d)]);
+    return { left, right };
   }
 
-  function nonZeroInt(min, max){
-    let n = 0;
-    while(n === 0) n = randInt(min, max);
-    return n;
+  function mediumTemplate(variable, solution){
+    const template = pick([1,2,3,4,5]);
+
+    if (template === 1){
+      // d = ax + b + cx
+      const a = nonZeroInt(-8, 8);
+      const c = nonZeroInt(-8, 8);
+      const b = randInt(-20, 20);
+      const d = (a + c) * solution + b;
+      if (Math.abs(d) > 99) return null;
+      const left = makeExpression([makeConst(d)]);
+      const right = makeExpression([makeLinear(a, variable), makeConst(b), makeLinear(c, variable)]);
+      return { left, right };
+    }
+
+    if (template === 2){
+      // m(ax+b) = c + dx + e
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 7);
+      const left = makeExpression([makeBracket(m, inside, variable, 1)]);
+      const d = nonZeroInt(-8, 8);
+      const e = randInt(-20, 20);
+      const c = left.A * solution + left.B - d * solution - e;
+      if (Math.abs(c) > 99) return null;
+      const right = makeExpression([makeConst(c), makeLinear(d, variable), makeConst(e)]);
+      return { left, right };
+    }
+
+    if (template === 3){
+      // c - m(a-bx) = d + ex
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 7);
+      const c = randInt(5, 40);
+      const left = makeExpression([makeConst(c), makeBracket(m, inside, variable, -1)]);
+      const e = nonZeroInt(-8, 8);
+      const d = left.A * solution + left.B - e * solution;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d), makeLinear(e, variable)]);
+      return { left, right };
+    }
+
+    if (template === 4){
+      // ax - m(a-bx) = d - ex
+      const inside = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 7);
+      const a = nonZeroInt(-8, 8);
+      const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, -1)]);
+      const e = nonZeroInt(-8, 8);
+      const d = left.A * solution + left.B + e * solution;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d), makeLinear(-e, variable)]);
+      return { left, right };
+    }
+
+    // ax + m(...) = d + ex + f
+    const inside = makeInsidePositiveLeading(variable);
+    const m = randInt(2, 7);
+    const a = nonZeroInt(-8, 8);
+    const e = nonZeroInt(-8, 8);
+    const f = randInt(-20, 20);
+    const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
+    const d = left.A * solution + left.B - e * solution - f;
+    if (Math.abs(d) > 99) return null;
+    const right = makeExpression([makeConst(d), makeLinear(e, variable), makeConst(f)]);
+    return { left, right };
   }
 
-  function validDisplayedNumbers(nums, diff){
-    const b = bounds(diff);
-    return nums.every(n => n <= b.allowedDisplayMax + 1e-9);
-  }
+  function hardTemplate(variable, solution){
+    const template = pick([1,2,3,4]);
 
-  function makeEasy(variable, solution){
-    const b = bounds("easy");
-    const makers = [
-      // ax + (bx + c) = d + ex
-      function(){
-        const a = nonZeroInt(2, 9);
-        const inA = nonZeroInt(1, 4) * (chance(0.2) ? -1 : 1);
-        const c = randInt(-12, 12);
-        const e = nonZeroInt(1, 9);
-        const d = randInt(-20, 20);
+    if (template === 1){
+      // m(...) - ax = d - n(...)
+      const inside1 = makeInsidePositiveLeading(variable);
+      const inside2 = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 8);
+      const n = randInt(2, 6);
+      const a = nonZeroInt(-7, 7);
+      const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(-a, variable)]);
+      const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
+      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
+      return { left, right };
+    }
 
-        const left = exprFromTerms([
-          makeLinear(a, variable),
-          { ...makeLinear(inA, variable), b:c, str:"(" + linearText(inA, c, variable) + ")", nums:[Math.abs(inA), Math.abs(c)] }
-        ]);
+    if (template === 2){
+      // c - m(...) = d - n(...)
+      const inside1 = makeInsidePositiveLeading(variable);
+      const inside2 = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 8);
+      const n = randInt(2, 6);
+      const c = randInt(5, 60);
+      const left = makeExpression([makeConst(c), makeBracket(m, inside1, variable, -1)]);
+      const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
+      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
+      return { left, right };
+    }
 
-        const rightCoeff = e;
-        const k = (left.a - rightCoeff) * solution + left.b;
-        if (Math.abs(k) > b.constMax) return null;
+    if (template === 3){
+      // m(...) + ax = d + n(...)
+      const inside1 = makeInsidePositiveLeading(variable);
+      const inside2 = makeInsidePositiveLeading(variable);
+      const m = randInt(2, 8);
+      const n = randInt(2, 6);
+      const a = nonZeroInt(-7, 7);
+      const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(a, variable)]);
+      const rightBase = makeExpression([makeBracket(n, inside2, variable, 1)]);
+      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+      if (Math.abs(d) > 99) return null;
+      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, 1)]);
+      return { left, right };
+    }
 
-        const right = exprFromTerms([
-          makeConst(k),
-          makeLinear(rightCoeff, variable)
-        ]);
-
-        return { left, right };
-      },
-
-      // m(ax + b) = cx + d
-      function(){
-        const m = randInt(2, b.bracketMultMax);
-        const inA = nonZeroInt(1, b.innerCoeffMax) * (chance(0.2) ? -1 : 1);
-        const inB = randInt(-12, 12);
-        const c = nonZeroInt(1, 10) * (chance(0.25) ? -1 : 1);
-
-        const left = exprFromTerms([makeBracket(m, inA, inB, variable)]);
-        const d = left.a * solution + left.b - c * solution;
-        if (Math.abs(d) > b.constMax) return null;
-
-        const right = exprFromTerms([makeLinear(c, variable), makeConst(d)]);
-        return { left, right };
-      },
-
-      // m(a + bx) = c + dx
-      function(){
-        const m = randInt(2, b.bracketMultMax);
-        const inB = nonZeroInt(1, b.innerCoeffMax) * (chance(0.25) ? -1 : 1);
-        const inA = randInt(-12, 12);
-        const d = nonZeroInt(1, 10) * (chance(0.2) ? -1 : 1);
-
-        const left = exprFromTerms([makeBracket(m, inB, inA, variable)]);
-        const c = left.a * solution + left.b - d * solution;
-        if (Math.abs(c) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(c), makeLinear(d, variable)]);
-        return { left, right };
-      },
-
-      // c - (a - bx) = d
-      function(){
-        const outer = randInt(2, 25);
-        const inA = randInt(1, 10);
-        const inB = nonZeroInt(1, 4);
-        const left = exprFromTerms([
-          makeConst(outer),
-          { a: inB, b: -inA, str:"- (" + linearText(-inB, inA, variable) + ")", nums:[Math.abs(inA), Math.abs(inB)] }
-        ]);
-
-        const d = left.a * solution + left.b;
-        if (Math.abs(d) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(d)]);
-        return { left, right };
-      }
-    ];
-
-    return pick(makers)();
-  }
-
-  function makeMedium(variable, solution){
-    const b = bounds("medium");
-    const makers = [
-      // a = bx + c + dx
-      function(){
-        const c1 = randInt(-40, 40);
-        const a1 = nonZeroInt(1, 8) * (chance(0.25) ? -1 : 1);
-        const a2 = nonZeroInt(1, 8) * (chance(0.25) ? -1 : 1);
-        const leftConst = (a1 + a2) * solution + c1;
-        if (Math.abs(leftConst) > b.constMax) return null;
-
-        const left = exprFromTerms([makeConst(leftConst)]);
-        const right = exprFromTerms([makeLinear(a1, variable), makeConst(c1), makeLinear(a2, variable)]);
-        return { left, right };
-      },
-
-      // a = bx + c - (dx - e)
-      function(){
-        const b1 = nonZeroInt(1, 8);
-        const c1 = randInt(-25, 25);
-        const d1 = nonZeroInt(1, 4);
-        const e1 = randInt(-15, 15);
-        const right = exprFromTerms([
-          makeLinear(b1, variable),
-          makeConst(c1),
-          { a:-d1, b:e1, str:"- (" + linearText(d1, -e1, variable) + ")", nums:[Math.abs(d1), Math.abs(e1)] }
-        ]);
-
-        const leftConst = right.a * solution + right.b;
-        if (Math.abs(leftConst) > b.constMax) return null;
-
-        const left = exprFromTerms([makeConst(leftConst)]);
-        return { left, right };
-      },
-
-      // m(ax + b) = c + dx + e
-      function(){
-        const m = randInt(2, b.bracketMultMax);
-        const inA = nonZeroInt(1, b.innerCoeffMax) * (chance(0.2) ? -1 : 1);
-        const inB = randInt(-12, 12);
-        const d = nonZeroInt(1, 7) * (chance(0.25) ? -1 : 1);
-        const e = randInt(-20, 20);
-        const left = exprFromTerms([makeBracket(m, inA, inB, variable)]);
-        const c = left.a * solution + left.b - d * solution - e;
-        if (Math.abs(c) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(c), makeLinear(d, variable), makeConst(e)]);
-        return { left, right };
-      },
-
-      // a - m(b - x) = c - x
-      function(){
-        const m = randInt(2, b.bracketMultMax);
-        const innerConst = randInt(2, 12);
-        const innerCoeff = nonZeroInt(1, 2);
-        const leftConst = randInt(10, 40);
-
-        const left = exprFromTerms([
-          makeConst(leftConst),
-          makeNegBracket(m, -innerCoeff, innerConst, variable)
-        ]);
-
-        const rightCoeff = nonZeroInt(1, 5) * (chance(0.3) ? -1 : 1);
-        const rightConst = left.a * solution + left.b - rightCoeff * solution;
-        if (Math.abs(rightConst) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(rightConst), makeLinear(rightCoeff, variable)]);
-        return { left, right };
-      },
-
-      // ax - m(b - x) = c - dx
-      function(){
-        const a = nonZeroInt(1, 8);
-        const m = randInt(2, 6);
-        const innerConst = randInt(2, 12);
-        const left = exprFromTerms([
-          makeLinear(a, variable),
-          makeNegBracket(m, -1, innerConst, variable)
-        ]);
-
-        const d = nonZeroInt(1, 5);
-        const c = left.a * solution + left.b + d * solution;
-        if (Math.abs(c) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(c), makeLinear(-d, variable)]);
-        return { left, right };
-      }
-    ];
-
-    return pick(makers)();
-  }
-
-  function makeHard(variable, solution){
-    const b = bounds("hard");
-    const decimalAllowed = Math.abs(solution % 1) > 1e-10;
-
-    const makers = [
-      // m(ax + b) - cx = d - n(ex - f)
-      function(){
-        const m = randInt(2, 8);
-        const inA = nonZeroInt(1, 4) * (chance(0.25) ? -1 : 1);
-        const inB = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5,2.5,-2.5]) : randInt(-12, 12);
-        const c = nonZeroInt(1, 7);
-        const n = randInt(2, 6);
-        const ex = nonZeroInt(1, 4) * (chance(0.25) ? -1 : 1);
-        const f = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5,2.5,-2.5]) : randInt(-10, 10);
-
-        const left = exprFromTerms([
-          makeBracket(m, inA, inB, variable),
-          makeLinear(-c, variable)
-        ]);
-
-        const rightCoeffOnly = exprFromTerms([
-          makeNegBracket(n, ex, -f, variable)
-        ]);
-
-        const d = left.a * solution + left.b - rightCoeffOnly.a * solution - rightCoeffOnly.b;
-        if (Math.abs(d) > b.constMax) return null;
-
-        const right = exprFromTerms([
-          makeConst(d),
-          makeNegBracket(n, ex, -f, variable)
-        ]);
-
-        return { left, right };
-      },
-
-      // m(x + a) - n(x + b) = p(x - c)
-      function(){
-        const m = randInt(2, 8);
-        const n = randInt(2, 8);
-        const p = nonZeroInt(1, 8) * (chance(0.25) ? -1 : 1);
-
-        const a = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-        const bb = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-
-        const left = exprFromTerms([
-          makeBracket(m, 1, a, variable),
-          makeNegBracket(n, 1, bb, variable)
-        ]);
-
-        const c = (p * solution - (left.a * solution + left.b)) / p;
-        const rounded = Math.round(c * 10) / 10;
-        if (!approxEqual(c, rounded)) return null;
-        if (Math.abs(c) > 20) return null;
-
-        const right = exprFromTerms([
-          makeBracket(p, 1, -c, variable)
-        ]);
-
-        return { left, right };
-      },
-
-      // m(y - a) - ny = c - p(y - q)
-      function(){
-        const m = randInt(2, 8);
-        const a = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-        const n = nonZeroInt(1, 6);
-        const p = randInt(2, 6);
-        const q = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-
-        const left = exprFromTerms([
-          makeBracket(m, 1, -a, variable),
-          makeLinear(-n, variable)
-        ]);
-
-        const rightPartial = exprFromTerms([
-          makeNegBracket(p, 1, -q, variable)
-        ]);
-
-        const c = left.a * solution + left.b - rightPartial.a * solution - rightPartial.b;
-        if (Math.abs(c) > b.constMax) return null;
-
-        const right = exprFromTerms([
-          makeConst(c),
-          makeNegBracket(p, 1, -q, variable)
-        ]);
-
-        return { left, right };
-      },
-
-      // m(ax + b) = c + n(dx + e)
-      function(){
-        const m = randInt(2, 8);
-        const a = nonZeroInt(1, 4) * (chance(0.25) ? -1 : 1);
-        const bb = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-
-        const n = randInt(2, 6);
-        const d = nonZeroInt(1, 4) * (chance(0.25) ? -1 : 1);
-        const e = decimalAllowed ? pick([0.5,-0.5,1.5,-1.5]) : randInt(-12, 12);
-
-        const left = exprFromTerms([makeBracket(m, a, bb, variable)]);
-        const rightPartial = exprFromTerms([makeBracket(n, d, e, variable)]);
-        const c = left.a * solution + left.b - rightPartial.a * solution - rightPartial.b;
-
-        if (Math.abs(c) > b.constMax) return null;
-
-        const right = exprFromTerms([makeConst(c), makeBracket(n, d, e, variable)]);
-        return { left, right };
-      }
-    ];
-
-    return pick(makers)();
+    // ax - m(...) = d + ex - n(...)
+    const inside1 = makeInsidePositiveLeading(variable);
+    const inside2 = makeInsidePositiveLeading(variable);
+    const m = randInt(2, 8);
+    const n = randInt(2, 6);
+    const a = nonZeroInt(-7, 7);
+    const e = nonZeroInt(-7, 7);
+    const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside1, variable, -1)]);
+    const rightBase = makeExpression([makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
+    const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+    if (Math.abs(d) > 99) return null;
+    const right = makeExpression([makeConst(d), makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
+    return { left, right };
   }
 
   function generateEquation(diff){
     let tries = 0;
 
-    while(tries < 1200){
+    while (tries < 1500){
       tries++;
 
       const actualDiff = diff === "random" ? pick(["easy","medium","hard"]) : diff;
       const variable = chooseVariable();
       const solution = pickSolution(actualDiff);
 
-      let build = null;
-      if (actualDiff === "easy") build = makeEasy(variable, solution);
-      if (actualDiff === "medium") build = makeMedium(variable, solution);
-      if (actualDiff === "hard") build = makeHard(variable, solution);
-      if (!build) continue;
+      let built = null;
+      if (actualDiff === "easy") built = easyTemplate(variable, solution);
+      if (actualDiff === "medium") built = mediumTemplate(variable, solution);
+      if (actualDiff === "hard") built = hardTemplate(variable, solution);
+      if (!built) continue;
 
-      const { left, right } = build;
+      const { left, right } = built;
       if (!left || !right) continue;
+      if (approxEqual(left.A, right.A)) continue;
 
-      if (approxEqual(left.a, right.a)) continue;
-
-      const derived = (right.b - left.b) / (left.a - right.a);
+      const derived = (right.B - left.B) / (left.A - right.A);
       if (!approxEqual(derived, solution)) continue;
 
-      if (actualDiff !== "hard" && Math.abs(derived % 1) > 1e-10) continue;
-      if (actualDiff === "hard" && Math.abs(derived % 1) > 1e-10){
+      if (actualDiff !== "hard" && Math.abs(derived % 1) > 1e-9) continue;
+      if (actualDiff === "hard" && Math.abs(derived % 1) > 1e-9){
         const rounded = Math.round(derived * 10) / 10;
         if (!approxEqual(rounded, derived)) continue;
       }
 
-      const nums = left.nums.concat(right.nums).filter(n => !approxEqual(n, 0));
-      if (!validDisplayedNumbers(nums, actualDiff)) continue;
-
       const eq = left.str + " = " + right.str;
-      if (/\b\d{3,}\b/.test(eq.replace(/\d\.\d/g, ""))) continue;
+      const nums = left.nums.concat(right.nums).filter(n => !approxEqual(n, 0));
 
-      const steps = buildSteps(left, right, variable, derived, eq);
+      if (!displayedNumberLimitOkay(nums)) continue;
+      if (!noThreeDigitDisplay(eq)) continue;
+      if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(eq)) continue; // defensive check against single-term bracket
+      if (/\-\s+\d+\(\s*\-/.test(eq)) continue; // defensive check against minus outside + negative first inside
 
       return {
         difficulty: actualDiff,
         variable,
         equation: eq,
         solution: derived,
-        leftA: left.a,
-        leftB: left.b,
-        rightA: right.a,
-        rightB: right.b,
-        steps
+        leftA: left.A,
+        leftB: left.B,
+        rightA: right.A,
+        rightB: right.B,
+        steps: buildSteps(left.A, left.B, right.A, right.B, variable, derived, eq)
       };
     }
 
     throw new Error("Could not generate a valid equation.");
   }
 
-  function buildSteps(left, right, variable, solution, original){
+  function buildSteps(leftA, leftB, rightA, rightB, variable, solution, original){
     const steps = [];
     steps.push("Start with the equation: " + original);
     steps.push("Expand and simplify each side: " +
-      linearText(left.a, left.b, variable) + " = " +
-      linearText(right.a, right.b, variable));
+      linearText(leftA, leftB, variable) + " = " +
+      linearText(rightA, rightB, variable));
 
-    const newA = left.a - right.a;
-    const rhsConst = right.b;
+    const coef = leftA - rightA;
+    const rhsAfterMove = rightB;
 
-    if (!approxEqual(right.a, 0)){
+    if (!approxEqual(rightA, 0)){
       steps.push("Move the variable terms to the left side: " +
-        linearText(newA, left.b, variable) + " = " + fmt(rhsConst));
+        linearText(coef, leftB, variable) + " = " + fmt(rhsAfterMove));
     } else {
       steps.push("The variable terms are already on the left side.");
     }
 
-    const finalConst = right.b - left.b;
-    if (!approxEqual(left.b, 0)){
-      const action = left.b > 0 ? "Subtract " + fmt(left.b) : "Add " + fmt(Math.abs(left.b));
+    const constAfterMove = rightB - leftB;
+    if (!approxEqual(leftB, 0)){
+      const action = leftB > 0 ? "Subtract " + fmt(leftB) : "Add " + fmt(Math.abs(leftB));
       steps.push(action + " on both sides: " +
-        linearText(newA, 0, variable) + " = " + fmt(finalConst));
+        linearText(coef, 0, variable) + " = " + fmt(constAfterMove));
     } else {
       steps.push("No constant needs to be moved from the left side.");
     }
 
-    if (!approxEqual(newA, 1)){
-      steps.push("Divide both sides by " + fmt(newA) + ": " + variable + " = " + fmt(solution));
+    if (!approxEqual(coef, 1)){
+      steps.push("Divide both sides by " + fmt(coef) + ": " + variable + " = " + fmt(solution));
     } else {
       steps.push("The variable is isolated: " + variable + " = " + fmt(solution));
     }
@@ -1195,13 +1089,6 @@
         "Reason: " + escapeHtml(item.reason);
       els.wrongList.appendChild(div);
     });
-  }
-
-  function escapeHtml(s){
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
   }
 
   function beep(freq, duration, type){
@@ -1406,7 +1293,7 @@
     els.worksheetList.innerHTML = "";
     els.worksheetMeta.textContent = "Worksheet: " + state.worksheetSize + " problems";
 
-    for(let i = 0; i < state.worksheetSize; i++){
+    for (let i = 0; i < state.worksheetSize; i++){
       const q = generateEquation(state.difficulty);
       state.worksheetItems.push(q);
 
@@ -1540,43 +1427,75 @@
 
     test("Parses integer input", () => parseAnswer("5").value === 5);
     test("Parses comma decimal input", () => approxEqual(parseAnswer("2,5").value, 2.5));
+
     test("Easy generator has no 3-digit numbers", () => {
-      for(let i=0;i<80;i++){
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("easy");
-        if (/\b\d{3,}\b/.test(q.equation.replace(/\d\.\d/g, ""))) return false;
+        if (!noThreeDigitDisplay(q.equation)) return false;
       }
       return true;
     });
+
     test("Medium generator has no 3-digit numbers", () => {
-      for(let i=0;i<80;i++){
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("medium");
-        if (/\b\d{3,}\b/.test(q.equation.replace(/\d\.\d/g, ""))) return false;
+        if (!noThreeDigitDisplay(q.equation)) return false;
       }
       return true;
     });
+
     test("Hard generator has no 3-digit numbers", () => {
-      for(let i=0;i<80;i++){
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("hard");
-        if (/\b\d{3,}\b/.test(q.equation.replace(/\d\.\d/g, ""))) return false;
+        if (!noThreeDigitDisplay(q.equation)) return false;
       }
       return true;
     });
-    test("Easy answers are integers", () => {
-      for(let i=0;i<40;i++){
+
+    test("No single-term brackets in easy", () => {
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("easy");
-        if (Math.abs(q.solution % 1) > 1e-10) return false;
+        if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(q.equation)) return false;
       }
       return true;
     });
-    test("Medium answers are integers", () => {
-      for(let i=0;i<40;i++){
+
+    test("No single-term brackets in medium", () => {
+      for (let i = 0; i < 100; i++){
         const q = generateEquation("medium");
-        if (Math.abs(q.solution % 1) > 1e-10) return false;
+        if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(q.equation)) return false;
       }
       return true;
     });
-    test("Hard answers solve the equation correctly", () => {
-      for(let i=0;i<80;i++){
+
+    test("No minus-outside with negative-first-inside in easy/medium", () => {
+      for (let i = 0; i < 120; i++){
+        const q1 = generateEquation("easy");
+        const q2 = generateEquation("medium");
+        if (/\-\s+\d+\(\s*\-/.test(q1.equation)) return false;
+        if (/\-\s+\d+\(\s*\-/.test(q2.equation)) return false;
+      }
+      return true;
+    });
+
+    test("Easy answers are integers", () => {
+      for (let i = 0; i < 60; i++){
+        const q = generateEquation("easy");
+        if (Math.abs(q.solution % 1) > 1e-9) return false;
+      }
+      return true;
+    });
+
+    test("Medium answers are integers", () => {
+      for (let i = 0; i < 60; i++){
+        const q = generateEquation("medium");
+        if (Math.abs(q.solution % 1) > 1e-9) return false;
+      }
+      return true;
+    });
+
+    test("Hard answers solve correctly", () => {
+      for (let i = 0; i < 120; i++){
         const q = generateEquation("hard");
         const leftVal = q.leftA * q.solution + q.leftB;
         const rightVal = q.rightA * q.solution + q.rightB;
@@ -1584,13 +1503,15 @@
       }
       return true;
     });
+
     test("Variables are only x y z", () => {
-      for(let i=0;i<60;i++){
+      for (let i = 0; i < 80; i++){
         const q = generateEquation(pick(["easy","medium","hard"]));
         if (!["x","y","z"].includes(q.variable)) return false;
       }
       return true;
     });
+
     test("Correct answer does not auto-advance", () => {
       const q = generateEquation("easy");
       state.current = q;
@@ -1600,14 +1521,18 @@
       submitAnswer();
       return state.canAdvance === true;
     });
+
     test("Worksheet count works", () => {
       state.worksheetSize = 10;
       buildWorksheet();
       return document.querySelectorAll(".ws-item").length === 10;
     });
-    test("Generator gives varied medium equations", () => {
+
+    test("Medium generator produces varied equations", () => {
       const set = new Set();
-      for(let i=0;i<20;i++) set.add(generateEquation("medium").equation);
+      for (let i = 0; i < 20; i++){
+        set.add(generateEquation("medium").equation);
+      }
       return set.size >= 15;
     });
 
@@ -1631,3 +1556,5 @@
   init();
 })();
 </script>
+</body>
+</html>
