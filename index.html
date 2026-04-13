@@ -691,6 +691,77 @@
     };
   }
 
+  function makeEasyInsideBank(variable){
+    const type = pick([
+      "var-plus",
+      "var-minus",
+      "coeff-plus",
+      "coeff-minus",
+      "const-minus-var",
+      "const-minus-2var"
+    ]);
+
+    if (type === "var-plus"){
+      const b = randInt(1, 12);
+      return {
+        a: 1,
+        b: b,
+        str: `${variable} + ${fmt(b)}`,
+        nums: [1, Math.abs(b)]
+      };
+    }
+
+    if (type === "var-minus"){
+      const b = randInt(1, 12);
+      return {
+        a: 1,
+        b: -b,
+        str: `${variable} - ${fmt(b)}`,
+        nums: [1, Math.abs(b)]
+      };
+    }
+
+    if (type === "coeff-plus"){
+      const a = randInt(2, 4);
+      const b = randInt(1, 12);
+      return {
+        a,
+        b,
+        str: `${termText(a, variable)} + ${fmt(b)}`,
+        nums: [Math.abs(a), Math.abs(b)]
+      };
+    }
+
+    if (type === "coeff-minus"){
+      const a = randInt(2, 4);
+      const b = randInt(1, 12);
+      return {
+        a,
+        b: -b,
+        str: `${termText(a, variable)} - ${fmt(b)}`,
+        nums: [Math.abs(a), Math.abs(b)]
+      };
+    }
+
+    if (type === "const-minus-var"){
+      const c = randInt(2, 12);
+      return {
+        a: -1,
+        b: c,
+        str: `${fmt(c)} - ${variable}`,
+        nums: [1, Math.abs(c)]
+      };
+    }
+
+    const c = randInt(3, 12);
+    return {
+      a: -2,
+      b: c,
+      str: `${fmt(c)} - ${termText(2, variable)}`,
+      nums: [2, Math.abs(c)]
+    };
+  }
+
   function makeBracket(multiplier, inside, variable, sign = 1){
     const prefix = (sign === -1 ? "- " : "") + fmt(multiplier);
     return {
@@ -745,7 +816,6 @@
       return randInt(1, 12);
     }
 
-    // hard: mostly positive, occasional negative, rare 1-decimal
     if (chance(0.08)){
       const base = randInt(1, 10);
       const sign = chance(0.18) ? -1 : 1;
@@ -768,48 +838,72 @@
     return !/\b\d{3,}\b/.test(stripped);
   }
 
-  function easyTemplate(variable, solution){
+  function easyControlledTemplate(variable, solution){
     const template = pick([1,2,3,4]);
+    const inside = makeEasyInsideBank(variable);
+    const m = randInt(2, 6);
 
     if (template === 1){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 6);
       const left = makeExpression([makeBracket(m, inside, variable, 1)]);
-      const c = nonZeroInt(-8, 8);
-      const d = left.A * solution + left.B - c * solution;
-      if (Math.abs(d) > 99 || approxEqual(c, 0)) return null;
-      const right = makeExpression([makeLinear(c, variable), makeConst(d)]);
+      if (left.A <= 1) return null;
+
+      const cMax = Math.min(8, left.A - 1);
+      if (cMax < 1) return null;
+
+      const c = randInt(1, cMax);
+      const finalCoeff = left.A - c;
+      const rhsConst = left.B + finalCoeff * solution;
+      if (Math.abs(rhsConst) > 99) return null;
+
+      const right = makeExpression([makeLinear(c, variable), makeConst(rhsConst)]);
       return { left, right };
     }
 
     if (template === 2){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 6);
-      const a = nonZeroInt(-8, 8);
-      const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
-      const d = left.A * solution + left.B;
+      const bracket = makeBracket(m, inside, variable, 1);
+      const minA = Math.max(1, 1 - bracket.a);
+      if (minA > 8) return null;
+
+      const a = randInt(minA, 8);
+      const finalCoeff = a + bracket.a;
+      if (finalCoeff <= 0) return null;
+
+      const d = bracket.b + finalCoeff * solution;
       if (Math.abs(d) > 99) return null;
+
+      const left = makeExpression([makeLinear(a, variable), bracket]);
       const right = makeExpression([makeConst(d)]);
       return { left, right };
     }
 
     if (template === 3){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 6);
-      const a = nonZeroInt(-8, 8);
-      const right = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
-      const d = right.A * solution + right.B;
+      const bracket = makeBracket(m, inside, variable, 1);
+      const minA = Math.max(1, 1 - bracket.a);
+      if (minA > 8) return null;
+
+      const a = randInt(minA, 8);
+      const finalCoeff = a + bracket.a;
+      if (finalCoeff <= 0) return null;
+
+      const d = bracket.b + finalCoeff * solution;
       if (Math.abs(d) > 99) return null;
+
       const left = makeExpression([makeConst(d)]);
+      const right = makeExpression([makeLinear(a, variable), bracket]);
       return { left, right };
     }
 
-    const inside = makeInsidePositiveLeading(variable);
-    const m = randInt(2, 6);
     const right = makeExpression([makeBracket(m, inside, variable, 1)]);
-    const a = nonZeroInt(-8, 8);
-    const d = right.A * solution + right.B - a * solution;
+    if (right.A <= 1) return null;
+
+    const aMax = Math.min(8, right.A - 1);
+    if (aMax < 1) return null;
+
+    const a = randInt(1, aMax);
+    const finalCoeff = right.A - a;
+    const d = right.B + finalCoeff * solution;
     if (Math.abs(d) > 99) return null;
+
     const left = makeExpression([makeLinear(a, variable), makeConst(d)]);
     return { left, right };
   }
@@ -946,7 +1040,7 @@
       const solution = pickSolution(actualDiff);
 
       let built = null;
-      if (actualDiff === "easy") built = easyTemplate(variable, solution);
+      if (actualDiff === "easy") built = easyControlledTemplate(variable, solution);
       if (actualDiff === "medium") built = mediumTemplate(variable, solution);
       if (actualDiff === "hard") built = hardTemplate(variable, solution);
       if (!built) continue;
@@ -962,6 +1056,14 @@
       if (actualDiff === "hard" && Math.abs(derived % 1) > 1e-9){
         const rounded = Math.round(derived * 10) / 10;
         if (!approxEqual(rounded, derived)) continue;
+      }
+
+      const finalCoeff = left.A - right.A;
+      const finalRightSide = right.B - left.B;
+
+      if (actualDiff === "easy"){
+        if (finalCoeff <= 0) continue;
+        if (finalRightSide <= 0) continue;
       }
 
       const eq = left.str + " = " + right.str;
@@ -1469,6 +1571,17 @@
         const q = generateEquation("easy");
         if (q.solution <= 0) return false;
         if (Math.abs(q.solution % 1) > 1e-9) return false;
+      }
+      return true;
+    });
+
+    test("Easy final step is positive divided by positive only", () => {
+      for (let i = 0; i < 200; i++){
+        const q = generateEquation("easy");
+        const finalCoeff = q.leftA - q.rightA;
+        const finalRightSide = q.rightB - q.leftB;
+        if (finalCoeff <= 0) return false;
+        if (finalRightSide <= 0) return false;
       }
       return true;
     });
