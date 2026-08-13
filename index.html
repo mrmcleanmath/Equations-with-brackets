@@ -1,1653 +1,783 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Solving Equations with Brackets - Mr. McLean Math</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Solving Equations with Brackets — Mr. McLean Math</title>
 <style>
-  :root{
-    --bg:#f4f7fb;
-    --panel:#ffffff;
-    --panel-soft:#eef3fb;
-    --text:#17202a;
-    --muted:#667788;
-    --border:#d7e0ea;
-    --accent:#2f67d8;
-    --accent-dark:#1f4fb5;
-    --good:#1f7a35;
-    --bad:#c62828;
-    --warn:#9a6700;
-    --shadow:0 10px 24px rgba(15,23,42,.08);
-    --radius:18px;
-  }
-
-  body.high-contrast{
-    --bg:#000;
-    --panel:#111;
-    --panel-soft:#1a1a1a;
-    --text:#fff;
-    --muted:#d6d6d6;
-    --border:#555;
-    --accent:#ffcc00;
-    --accent-dark:#ffcc00;
-    --good:#33ff66;
-    --bad:#ff6666;
-    --warn:#ffd966;
-    --shadow:none;
-  }
-
-  *{ box-sizing:border-box; }
-
-  body{
-    margin:0;
-    font-family:Arial, Helvetica, sans-serif;
-    background:var(--bg);
-    color:var(--text);
-  }
-
-  .wrap{
-    max-width:1180px;
-    margin:0 auto;
-    padding:14px;
-  }
-
-  .brand{
-    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
-    color:#fff;
-    border-radius:22px;
-    padding:16px 20px;
-    box-shadow:var(--shadow);
-    margin-bottom:12px;
-  }
-
-  .brand h1{
-    margin:0 0 4px 0;
-    font-size:clamp(1.7rem, 3vw, 2.5rem);
-    line-height:1.1;
-  }
-
-  .brand p{
-    margin:0;
-    font-size:1rem;
-    opacity:.96;
-  }
-
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:14px;
-  }
-
-  .toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    align-items:center;
-    margin-bottom:14px;
-    padding:10px 12px;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:16px;
-    box-shadow:var(--shadow);
-  }
-
-  .toolbar-group{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    flex-wrap:wrap;
-  }
-
-  .toolbar-label{
-    font-size:.9rem;
-    font-weight:700;
-    color:var(--muted);
-    margin-right:2px;
-  }
-
-  button, input{
-    font:inherit;
-  }
-
-  .btn{
-    border:1px solid var(--border);
-    background:#fff;
-    color:#111;
-    padding:8px 12px;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:700;
-    min-height:40px;
-  }
-
-  body.high-contrast .btn{
-    background:#111;
-    color:#fff;
-  }
-
-  .btn:hover{ transform:translateY(-1px); }
-  .btn.active{
-    background:var(--accent);
-    color:#fff;
-    border-color:var(--accent);
-  }
-  .btn.secondary{
-    background:var(--panel-soft);
-    color:var(--text);
-  }
-  .btn.good{
-    background:var(--good);
-    color:#fff;
-    border-color:var(--good);
-  }
-
-  .mode-btn{ min-width:112px; }
-
-  .main-area{
-    display:grid;
-    gap:14px;
-  }
-
-  .equation-card{
-    background:var(--panel-soft);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:16px;
-  }
-
-  .card-top{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    align-items:center;
-    margin-bottom:10px;
-  }
-
-  .card-label{
-    font-size:.98rem;
-    font-weight:700;
-    color:var(--muted);
-  }
-
-  .pill{
-    display:inline-block;
-    padding:5px 10px;
-    border:1px solid var(--border);
-    border-radius:999px;
-    background:var(--panel);
-    color:var(--muted);
-    font-size:.88rem;
-    font-weight:700;
-  }
-
-  .equation{
-    font-size:clamp(2rem, 4vw, 3.25rem);
-    font-weight:800;
-    line-height:1.25;
-    margin:6px 0 14px;
-    word-break:break-word;
-  }
-
-  .answer-row{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-  }
-
-  .answer-input{
-    flex:1 1 320px;
-    min-width:240px;
-    font-size:1.2rem;
-    padding:14px 16px;
-    border-radius:14px;
-    border:2px solid var(--border);
-    background:#fff;
-    color:#111;
-  }
-
-  body.high-contrast .answer-input{
-    background:#111;
-    color:#fff;
-  }
-
-  .small-note{
-    color:var(--muted);
-    font-size:.92rem;
-    margin-top:8px;
-  }
-
-  .bottom-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-  }
-
-  @media (max-width:860px){
-    .bottom-grid{ grid-template-columns:1fr; }
-  }
-
-  .box{
-    background:var(--panel-soft);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:14px;
-  }
-
-  .box-title{
-    font-weight:800;
-    font-size:1.15rem;
-    margin-bottom:10px;
-  }
-
-  .status-line{
-    min-height:1.4em;
-    font-size:1.2rem;
-    font-weight:800;
-    margin-bottom:8px;
-  }
-
-  .good-text{ color:var(--good); }
-  .bad-text{ color:var(--bad); }
-  .warn-text{ color:var(--warn); }
-
-  .steps{
-    display:none;
-    margin-top:12px;
-    padding-top:12px;
-    border-top:1px dashed var(--border);
-  }
-
-  .steps.show{ display:block; }
-
-  .steps ol{
-    margin:8px 0 0 20px;
-    padding:0;
-  }
-
-  .steps li{
-    margin:8px 0;
-    line-height:1.45;
-  }
-
-  .stats{
-    display:grid;
-    grid-template-columns:repeat(2, minmax(0,1fr));
-    gap:10px;
-  }
-
-  .stat{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:10px;
-    font-size:.96rem;
-  }
-
-  details summary{
-    cursor:pointer;
-    font-weight:700;
-    margin-top:12px;
-  }
-
-  .wrong-item{
-    margin-top:8px;
-    padding:10px;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    line-height:1.45;
-  }
-
-  .worksheet-controls{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-    margin-bottom:12px;
-  }
-
-  .worksheet-sheet{
-    background:var(--panel-soft);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:16px;
-  }
-
-  .sheet-title{
-    font-size:1.25rem;
-    font-weight:800;
-    margin-bottom:4px;
-  }
-
-  .sheet-note{
-    color:var(--muted);
-    margin-bottom:12px;
-  }
-
-  .ws-item{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:12px;
-    margin:10px 0;
-  }
-
-  .ws-equation{
-    font-size:1.18rem;
-    font-weight:800;
-    margin-bottom:10px;
-  }
-
-  .ws-answer{
-    display:none;
-    margin-top:8px;
-    color:var(--good);
-    font-weight:800;
-  }
-
-  .ws-answer.show{ display:block; }
-
-  .footer{
-    text-align:center;
-    margin:18px 0 4px;
-    color:var(--muted);
-    font-weight:700;
-  }
-
-  .dev-panel{
-    margin-top:14px;
-    background:#fff7e6;
-    border:2px dashed #d48806;
-  }
-
-  body.high-contrast .dev-panel{
-    background:#1a1a1a;
-    border-color:#ffcc00;
-  }
-
-  .mono{
-    white-space:pre-wrap;
-    line-height:1.5;
-    font-family:Consolas, Monaco, monospace;
-  }
-
-  .big-ui .equation{ font-size:clamp(2.35rem, 5vw, 3.7rem); }
-  .big-ui .answer-input{ font-size:1.35rem; }
-  .big-ui .btn{ font-size:1rem; }
-
-  .sr-only{
-    position:absolute;
-    width:1px;
-    height:1px;
-    padding:0;
-    margin:-1px;
-    overflow:hidden;
-    clip:rect(0,0,0,0);
-    white-space:nowrap;
-    border:0;
-  }
+:root{--bg:#f5f6f8;--panel:#fff;--text:#202124;--muted:#666b73;--border:#d9dde3;--accent:#1976d2;--accent-soft:#e8f1fb;--good:#247a3b;--bad:#b3261e;--focus:#f5b400}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+body.high-contrast{--bg:#000;--panel:#090909;--text:#fff;--muted:#ddd;--border:#777;--accent:#00d7ff;--accent-soft:#111;--good:#68ff8b;--bad:#ff7474;--focus:#ffea00}
+.app{max-width:920px;margin:0 auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0;font-size:clamp(28px,5vw,36px)}
+.mode-buttons,.toolbar,.difficulty,.ws-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar{justify-content:space-between;margin-bottom:14px}
+button,select,input{font:inherit}
+button,select{border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);padding:9px 13px}
+button{cursor:pointer;font-weight:650}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button[aria-pressed="true"],button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px}
+.practice{display:grid;gap:15px}
+.equation{font-size:clamp(27px,5vw,38px);font-weight:800;text-align:center;padding:20px 10px;background:var(--accent-soft);border-radius:13px;word-break:break-word}
+.note{text-align:center;color:var(--muted);font-size:14px}
+.answer-row{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+input[type="text"]{width:min(280px,100%);font-size:21px;text-align:center;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text)}
+.feedback{min-height:28px;text-align:center;font-size:18px;font-weight:700}
+.feedback.correct{color:var(--good)}.feedback.incorrect{color:var(--bad)}
+.steps{max-width:720px;width:100%;margin:0 auto;background:var(--accent-soft);border:1px solid var(--border);border-radius:11px;padding:11px 13px}
+.steps ol{margin:0;padding-left:24px}.steps li{margin:6px 0}
+.stats{display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:15px}
+.worksheet{display:none}
+.ws-controls{margin-bottom:14px}
+.ws-list{display:grid;gap:12px}
+.ws-item{border:1px solid var(--border);border-radius:11px;padding:11px 12px;break-inside:avoid}
+.ws-q{font-size:18px;font-weight:700}
+.ws-answer{display:none;margin-top:7px;color:var(--good);font-weight:700}
+.ws-reveal{margin-top:7px;padding:6px 10px;font-size:14px}
+footer{text-align:center;color:var(--muted);font-size:14px;margin-top:18px}
+@media(max-width:650px){.app{padding:13px}.panel{padding:14px}.answer-row{align-items:stretch}input[type="text"],.answer-row button{width:100%}}
+@media print{header,.toolbar,footer,.ws-controls,.ws-reveal{display:none!important}body{background:#fff;color:#000}.app{max-width:none;padding:0}.panel{border:0;padding:0;background:#fff}.worksheet{display:block!important}.ws-answer{display:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="brand">
-    <h1>Solving Equations with Brackets</h1>
-    <p>Game mode and worksheet mode with true procedural generation.</p>
+<div class="app">
+<header>
+  <h1>Solving Equations with Brackets</h1>
+  <div class="mode-buttons" role="group" aria-label="Mode">
+    <button id="practiceBtn" aria-pressed="true">Practice</button>
+    <button id="worksheetBtn" aria-pressed="false">Worksheet</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="difficulty" id="difficulty" role="group" aria-label="Difficulty">
+    <button data-diff="foundation" aria-pressed="true">Foundation</button>
+    <button data-diff="core" aria-pressed="false">Core</button>
+    <button data-diff="challenge" aria-pressed="false">Challenge</button>
+  </div>
+  <button id="contrastBtn" aria-pressed="false">High contrast</button>
+</div>
+
+<section id="practice" class="panel practice">
+  <div class="note">Solve the equation.</div>
+  <div id="equation" class="equation" aria-live="polite"></div>
+
+  <div class="answer-row">
+    <label id="answerLabel" for="answer">Solve for x:</label>
+    <input id="answer" type="text" inputmode="decimal" autocomplete="off">
+    <button id="check" class="primary">Check</button>
+    <button id="next" hidden>Next</button>
   </div>
 
-  <div class="toolbar">
-    <div class="toolbar-group">
-      <button id="modeGameBtn" class="btn mode-btn active">Game</button>
-      <button id="modeWorksheetBtn" class="btn mode-btn">Worksheet</button>
-    </div>
+  <div id="feedback" class="feedback" aria-live="polite"></div>
+  <button id="showSteps" hidden style="justify-self:center">Show steps</button>
+  <div id="steps" class="steps" hidden></div>
 
-    <div class="toolbar-group">
-      <span class="toolbar-label">Difficulty</span>
-      <button class="btn diff-btn active" data-diff="easy">Easy</button>
-      <button class="btn diff-btn" data-diff="medium">Medium</button>
-      <button class="btn diff-btn" data-diff="hard">Hard</button>
-      <button class="btn diff-btn" data-diff="random">Random</button>
-    </div>
-
-    <div class="toolbar-group">
-      <span class="toolbar-label">Timer</span>
-      <button id="timerOffBtn" class="btn active">Off</button>
-      <button class="btn timer-btn" data-secs="30">30s</button>
-      <button class="btn timer-btn" data-secs="60">60s</button>
-      <button class="btn timer-btn" data-secs="90">90s</button>
-      <button class="btn timer-btn" data-secs="120">120s</button>
-    </div>
-
-    <div class="toolbar-group">
-      <span class="toolbar-label">Worksheet</span>
-      <button class="btn ws-size active" data-size="5">5</button>
-      <button class="btn ws-size" data-size="10">10</button>
-      <button class="btn ws-size" data-size="15">15</button>
-    </div>
-
-    <div class="toolbar-group">
-      <button id="soundBtn" class="btn active">Sound</button>
-      <button id="contrastBtn" class="btn">Contrast</button>
-      <button id="fontBtn" class="btn">Projector</button>
-    </div>
+  <div class="stats">
+    <span>Correct: <strong id="correctCount">0</strong></span>
+    <span>Incorrect: <strong id="incorrectCount">0</strong></span>
   </div>
+</section>
 
-  <div id="gamePanel" class="panel">
-    <div class="main-area">
-      <div class="equation-card">
-        <div class="card-top">
-          <div class="card-label">Solve the equation</div>
-          <span id="timerPill" class="pill">Timer: Off</span>
-          <span id="difficultyPill" class="pill">Difficulty: Easy</span>
-        </div>
-
-        <div id="equationText" class="equation" aria-live="polite"></div>
-
-        <div class="answer-row">
-          <label class="sr-only" for="answerInput">Type the answer</label>
-          <input id="answerInput" class="answer-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Type the answer" />
-          <button id="submitBtn" class="btn good">Submit</button>
-          <button id="nextBtn" class="btn secondary">Next</button>
-          <button id="clearBtn" class="btn secondary">Clear</button>
-          <button id="newBtn" class="btn secondary">New problem</button>
-        </div>
-
-        <div class="small-note">Use a minus sign if needed. Decimals may use a dot or comma.</div>
-      </div>
-
-      <div class="bottom-grid">
-        <div class="box">
-          <div class="box-title">Feedback</div>
-          <div id="statusLine" class="status-line" aria-live="polite"></div>
-          <div id="statusDetail" class="small-note"></div>
-          <div style="margin-top:10px;">
-            <button id="showStepsBtn" class="btn secondary">Show steps</button>
-          </div>
-          <div id="stepsBox" class="steps"></div>
-        </div>
-
-        <div class="box">
-          <div class="box-title">Session summary</div>
-          <div class="stats">
-            <div class="stat"><strong>Total</strong><br><span id="sumTotal">0</span></div>
-            <div class="stat"><strong>Correct</strong><br><span id="sumCorrect">0</span></div>
-            <div class="stat"><strong>Accuracy</strong><br><span id="sumAccuracy">0%</span></div>
-            <div class="stat"><strong>Score</strong><br><span id="sumScore">0</span></div>
-            <div class="stat"><strong>Streak</strong><br><span id="sumStreak">0</span></div>
-            <div class="stat"><strong>Best streak</strong><br><span id="sumBestStreak">0</span></div>
-          </div>
-
-          <details>
-            <summary>Incorrect list</summary>
-            <div id="wrongList"></div>
-          </details>
-        </div>
-      </div>
-    </div>
+<section id="worksheet" class="panel worksheet">
+  <div class="ws-controls">
+    <label for="wsCount">Questions:</label>
+    <select id="wsCount"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select>
+    <button id="generateWs">Generate</button>
+    <button id="revealAll">Reveal all</button>
+    <button id="hideAll">Hide all</button>
+    <button id="printWs">Print</button>
   </div>
+  <div class="note" style="text-align:left;margin-bottom:14px">Solve each equation. Write the value of the variable.</div>
+  <div id="wsList" class="ws-list"></div>
+</section>
 
-  <div id="worksheetPanel" class="panel" style="display:none;">
-    <div class="worksheet-controls">
-      <button id="generateWorksheetBtn" class="btn good">Generate worksheet</button>
-      <button id="revealAllBtn" class="btn secondary">Reveal all</button>
-      <button id="hideAllBtn" class="btn secondary">Hide all</button>
-      <span id="worksheetMeta" class="pill">Worksheet: 5 problems</span>
-    </div>
-
-    <div class="worksheet-sheet">
-      <div class="sheet-title">Worksheet</div>
-      <div class="sheet-note">Solve each equation. Write the value of the variable only.</div>
-      <div id="worksheetList"></div>
-    </div>
-  </div>
-
-  <div id="devPanel" class="panel dev-panel" style="display:none;">
-    <div class="box-title">Developer tests</div>
-    <div id="devResults" class="mono"></div>
-  </div>
-
-  <div class="footer">Created by Mr. McLean Math.</div>
+<footer>Created by Mr. McLean Math</footer>
 </div>
 
 <script>
-(function(){
-  "use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const state={mode:"practice",difficulty:"foundation",current:null,evaluated:false,correct:0,incorrect:0};
 
-  const state = {
-    mode: "game",
-    difficulty: "easy",
-    timerOn: false,
-    timerSecs: 0,
-    timeLeft: 0,
-    timerId: null,
-    soundOn: true,
-    highContrast: false,
-    bigFonts: false,
-    worksheetSize: 5,
-    current: null,
-    canAdvance: false,
-    submittedThisRound: false,
-    total: 0,
-    correct: 0,
-    score: 0,
-    streak: 0,
-    bestStreak: 0,
-    wrongItems: [],
-    worksheetItems: []
-  };
+function randInt(min, max){
+return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-  const els = {
-    modeGameBtn: document.getElementById("modeGameBtn"),
-    modeWorksheetBtn: document.getElementById("modeWorksheetBtn"),
-    gamePanel: document.getElementById("gamePanel"),
-    worksheetPanel: document.getElementById("worksheetPanel"),
-    equationText: document.getElementById("equationText"),
-    answerInput: document.getElementById("answerInput"),
-    submitBtn: document.getElementById("submitBtn"),
-    nextBtn: document.getElementById("nextBtn"),
-    clearBtn: document.getElementById("clearBtn"),
-    newBtn: document.getElementById("newBtn"),
-    timerPill: document.getElementById("timerPill"),
-    difficultyPill: document.getElementById("difficultyPill"),
-    statusLine: document.getElementById("statusLine"),
-    statusDetail: document.getElementById("statusDetail"),
-    showStepsBtn: document.getElementById("showStepsBtn"),
-    stepsBox: document.getElementById("stepsBox"),
-    sumTotal: document.getElementById("sumTotal"),
-    sumCorrect: document.getElementById("sumCorrect"),
-    sumAccuracy: document.getElementById("sumAccuracy"),
-    sumScore: document.getElementById("sumScore"),
-    sumStreak: document.getElementById("sumStreak"),
-    sumBestStreak: document.getElementById("sumBestStreak"),
-    wrongList: document.getElementById("wrongList"),
-    soundBtn: document.getElementById("soundBtn"),
-    contrastBtn: document.getElementById("contrastBtn"),
-    fontBtn: document.getElementById("fontBtn"),
-    generateWorksheetBtn: document.getElementById("generateWorksheetBtn"),
-    revealAllBtn: document.getElementById("revealAllBtn"),
-    hideAllBtn: document.getElementById("hideAllBtn"),
-    worksheetMeta: document.getElementById("worksheetMeta"),
-    worksheetList: document.getElementById("worksheetList"),
-    devPanel: document.getElementById("devPanel"),
-    devResults: document.getElementById("devResults"),
-    timerOffBtn: document.getElementById("timerOffBtn")
-  };
+function pick(arr){
+return arr[randInt(0, arr.length - 1)];
+}
 
-  function randInt(min, max){
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+function chance(p){
+return Math.random() < p;
+}
+
+function approxEqual(a, b){
+return Math.abs(a - b) < 1e-9;
+}
+
+function fmt(n){
+const rounded = Math.round(n * 10) / 10;
+if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
+return rounded.toFixed(1);
+}
+
+function parseAnswer(raw){
+  let s = String(raw ?? "").trim().replace(/\s+/g, "");
+  if (!s) return { ok:false, value:null };
+  if (s.includes(".") && s.includes(",")) return { ok:false, value:null };
+  if (s.includes(",")) s = s.replace(",", ".");
+  if (!/^[+\-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s)) return { ok:false, value:null };
+  const value = Number(s);
+  return Number.isFinite(value) ? { ok:true, value } : { ok:false, value:null };
+}
+
+function cap(s){
+return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function escapeHtml(s){
+return String(s)
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;");
+}
+
+function nonZeroInt(min, max){
+let n = 0;
+while (n === 0) n = randInt(min, max);
+return n;
+}
+
+function termText(coeff, variable){
+if (coeff === 1) return variable;
+if (coeff === -1) return "-" + variable;
+return fmt(coeff) + variable;
+}
+
+function linearText(a, b, variable){
+const parts = [];
+if (!approxEqual(a, 0)){
+if (a === 1) parts.push(variable);
+else if (a === -1) parts.push("-" + variable);
+else parts.push(fmt(a) + variable);
+}
+if (!approxEqual(b, 0)){
+const n = fmt(Math.abs(b));
+if (parts.length === 0){
+parts.push((b < 0 ? "-" : "") + n);
+} else {
+parts.push((b < 0 ? "- " : "+ ") + n);
+}
+}
+return parts.join(" ") || "0";
+}
+
+function makeConst(value){
+return {
+a: 0,
+b: value,
+str: fmt(value),
+nums: [Math.abs(value)]
+};
+}
+
+function makeLinear(coeff, variable){
+return {
+a: coeff,
+b: 0,
+str: termText(coeff, variable),
+nums: [Math.abs(coeff)]
+};
+}
+
+function makeInsidePositiveLeading(variable){
+const order = pick(["var-first", "const-first"]);
+
+if (order === "var-first"){
+const a = randInt(1, 4);
+const b = randInt(1, 12) * (chance(0.5) ? 1 : -1);
+return {
+a,
+b,
+str: linearText(a, b, variable),
+nums: [Math.abs(a), Math.abs(b)]
+};
+}
+
+const constVal = randInt(2, 12);
+const varCoeff = randInt(1, 4) * (chance(0.6) ? -1 : 1);
+const str = varCoeff < 0
+? `${fmt(constVal)} - ${termText(Math.abs(varCoeff), variable)}`
+: `${fmt(constVal)} + ${termText(varCoeff, variable)}`;
+
+return {
+a: varCoeff,
+b: constVal,
+str,
+nums: [Math.abs(varCoeff), Math.abs(constVal)]
+};
+}
+
+function makeEasyInsideBank(variable){
+const type = pick([
+"var-plus",
+"var-minus",
+"coeff-plus",
+"coeff-minus",
+"const-minus-var",
+"const-minus-2var"
+]);
+
+if (type === "var-plus"){
+const b = randInt(1, 12);
+return {
+a: 1,
+b: b,
+str: `${variable} + ${fmt(b)}`,
+nums: [1, Math.abs(b)]
+};
+}
+
+if (type === "var-minus"){
+const b = randInt(1, 12);
+return {
+a: 1,
+b: -b,
+str: `${variable} - ${fmt(b)}`,
+nums: [1, Math.abs(b)]
+};
+}
+
+if (type === "coeff-plus"){
+const a = randInt(2, 4);
+const b = randInt(1, 12);
+return {
+a,
+b,
+str: `${termText(a, variable)} + ${fmt(b)}`,
+nums: [Math.abs(a), Math.abs(b)]
+};
+}
+
+if (type === "coeff-minus"){
+const a = randInt(2, 4);
+const b = randInt(1, 12);
+return {
+a,
+b: -b,
+str: `${termText(a, variable)} - ${fmt(b)}`,
+nums: [Math.abs(a), Math.abs(b)]
+};
+}
+
+if (type === "const-minus-var"){
+const c = randInt(2, 12);
+return {
+a: -1,
+b: c,
+str: `${fmt(c)} - ${variable}`,
+nums: [1, Math.abs(c)]
+};
+}
+
+const c = randInt(3, 12);
+return {
+a: -2,
+b: c,
+str: `${fmt(c)} - ${termText(2, variable)}`,
+nums: [2, Math.abs(c)]
+};
+}
+
+function makeBracket(multiplier, inside, variable, sign = 1){
+const prefix = (sign === -1 ? "- " : "") + fmt(multiplier);
+return {
+a: sign * multiplier * inside.a,
+b: sign * multiplier * inside.b,
+str: prefix + "(" + inside.str + ")",
+nums: [Math.abs(multiplier)].concat(inside.nums)
+};
+}
+
+function makeExpression(terms){
+let A = 0;
+let B = 0;
+let nums = [];
+let out = "";
+
+terms.forEach((t, i) => {
+A += t.a;
+B += t.b;
+nums = nums.concat(t.nums || []);
+const s = String(t.str).trim();
+
+if (i === 0){
+out += s;
+} else if (s.startsWith("- ")){
+out += " - " + s.slice(2);
+} else if (s.startsWith("-")){
+out += " - " + s.slice(1);
+} else {
+out += " + " + s;
+}
+});
+
+out = out.replace(/\+\s-\s/g, "- ");
+out = out.replace(/\b1([xyz])/g, "$1");
+out = out.replace(/\b-1([xyz])/g, "-$1");
+out = out.replace(/\s+/g, " ").trim();
+
+return { A, B, str: out, nums };
+}
+
+function chooseVariable(){
+return pick(["x","y","z"]);
+}
+
+function pickSolution(diff){
+if (diff === "easy"){
+return randInt(1, 12);
+}
+
+if (diff === "medium"){
+return randInt(1, 12);
+}
+
+if (chance(0.08)){
+const base = randInt(1, 10);
+const sign = chance(0.18) ? -1 : 1;
+return sign * (base + 0.5);
+}
+
+if (chance(0.18)){
+return randInt(-10, -1);
+}
+
+return randInt(1, 12);
+}
+
+function displayedNumberLimitOkay(nums){
+return nums.every(n => n <= 99 + 1e-9);
+}
+
+function noThreeDigitDisplay(eq){
+const stripped = eq.replace(/\d\.\d/g, "");
+return !/\b\d{3,}\b/.test(stripped);
+}
+
+function easyControlledTemplate(variable, solution){
+const template = pick([1,2,3,4]);
+const inside = makeEasyInsideBank(variable);
+const m = randInt(2, 6);
+
+if (template === 1){
+const left = makeExpression([makeBracket(m, inside, variable, 1)]);
+if (left.A <= 1) return null;
+
+const cMax = Math.min(8, left.A - 1);
+if (cMax < 1) return null;
+
+const c = randInt(1, cMax);
+const finalCoeff = left.A - c;
+const rhsConst = left.B + finalCoeff * solution;
+if (Math.abs(rhsConst) > 99) return null;
+
+const right = makeExpression([makeLinear(c, variable), makeConst(rhsConst)]);
+return { left, right };
+}
+
+if (template === 2){
+const bracket = makeBracket(m, inside, variable, 1);
+const minA = Math.max(1, 1 - bracket.a);
+if (minA > 8) return null;
+
+const a = randInt(minA, 8);
+const finalCoeff = a + bracket.a;
+if (finalCoeff <= 0) return null;
+
+const d = bracket.b + finalCoeff * solution;
+if (Math.abs(d) > 99) return null;
+
+const left = makeExpression([makeLinear(a, variable), bracket]);
+const right = makeExpression([makeConst(d)]);
+return { left, right };
+}
+
+if (template === 3){
+const bracket = makeBracket(m, inside, variable, 1);
+const minA = Math.max(1, 1 - bracket.a);
+if (minA > 8) return null;
+
+const a = randInt(minA, 8);
+const finalCoeff = a + bracket.a;
+if (finalCoeff <= 0) return null;
+
+const d = bracket.b + finalCoeff * solution;
+if (Math.abs(d) > 99) return null;
+
+const left = makeExpression([makeConst(d)]);
+const right = makeExpression([makeLinear(a, variable), bracket]);
+return { left, right };
+}
+
+const right = makeExpression([makeBracket(m, inside, variable, 1)]);
+if (right.A <= 1) return null;
+
+const aMax = Math.min(8, right.A - 1);
+if (aMax < 1) return null;
+
+const a = randInt(1, aMax);
+const finalCoeff = right.A - a;
+const d = right.B + finalCoeff * solution;
+if (Math.abs(d) > 99) return null;
+
+const left = makeExpression([makeLinear(a, variable), makeConst(d)]);
+return { left, right };
+}
+
+function mediumTemplate(variable, solution){
+const template = pick([1,2,3,4,5]);
+
+if (template === 1){
+const a = nonZeroInt(-8, 8);
+const c = nonZeroInt(-8, 8);
+const b = randInt(-20, 20);
+const d = (a + c) * solution + b;
+if (Math.abs(d) > 99) return null;
+const left = makeExpression([makeConst(d)]);
+const right = makeExpression([makeLinear(a, variable), makeConst(b), makeLinear(c, variable)]);
+return { left, right };
+}
+
+if (template === 2){
+const inside = makeInsidePositiveLeading(variable);
+const m = randInt(2, 7);
+const left = makeExpression([makeBracket(m, inside, variable, 1)]);
+const d = nonZeroInt(-8, 8);
+const e = randInt(-20, 20);
+const c = left.A * solution + left.B - d * solution - e;
+if (Math.abs(c) > 99) return null;
+const right = makeExpression([makeConst(c), makeLinear(d, variable), makeConst(e)]);
+return { left, right };
+}
+
+if (template === 3){
+const inside = makeInsidePositiveLeading(variable);
+const m = randInt(2, 7);
+const c = randInt(5, 40);
+const left = makeExpression([makeConst(c), makeBracket(m, inside, variable, -1)]);
+const e = nonZeroInt(-8, 8);
+const d = left.A * solution + left.B - e * solution;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeLinear(e, variable)]);
+return { left, right };
+}
+
+if (template === 4){
+const inside = makeInsidePositiveLeading(variable);
+const m = randInt(2, 7);
+const a = nonZeroInt(-8, 8);
+const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, -1)]);
+const e = nonZeroInt(-8, 8);
+const d = left.A * solution + left.B + e * solution;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeLinear(-e, variable)]);
+return { left, right };
+}
+
+const inside = makeInsidePositiveLeading(variable);
+const m = randInt(2, 7);
+const a = nonZeroInt(-8, 8);
+const e = nonZeroInt(-8, 8);
+const f = randInt(-20, 20);
+const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
+const d = left.A * solution + left.B - e * solution - f;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeLinear(e, variable), makeConst(f)]);
+return { left, right };
+}
+
+function hardTemplate(variable, solution){
+const template = pick([1,2,3,4]);
+
+if (template === 1){
+const inside1 = makeInsidePositiveLeading(variable);
+const inside2 = makeInsidePositiveLeading(variable);
+const m = randInt(2, 8);
+const n = randInt(2, 6);
+const a = nonZeroInt(-7, 7);
+const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(-a, variable)]);
+const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
+const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
+return { left, right };
+}
+
+if (template === 2){
+const inside1 = makeInsidePositiveLeading(variable);
+const inside2 = makeInsidePositiveLeading(variable);
+const m = randInt(2, 8);
+const n = randInt(2, 6);
+const c = randInt(5, 60);
+const left = makeExpression([makeConst(c), makeBracket(m, inside1, variable, -1)]);
+const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
+const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
+return { left, right };
+}
+
+if (template === 3){
+const inside1 = makeInsidePositiveLeading(variable);
+const inside2 = makeInsidePositiveLeading(variable);
+const m = randInt(2, 8);
+const n = randInt(2, 6);
+const a = nonZeroInt(-7, 7);
+const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(a, variable)]);
+const rightBase = makeExpression([makeBracket(n, inside2, variable, 1)]);
+const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, 1)]);
+return { left, right };
+}
+
+const inside1 = makeInsidePositiveLeading(variable);
+const inside2 = makeInsidePositiveLeading(variable);
+const m = randInt(2, 8);
+const n = randInt(2, 6);
+const a = nonZeroInt(-7, 7);
+const e = nonZeroInt(-7, 7);
+const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside1, variable, -1)]);
+const rightBase = makeExpression([makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
+const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
+if (Math.abs(d) > 99) return null;
+const right = makeExpression([makeConst(d), makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
+return { left, right };
+}
+
+function generateEquation(diff){
+let tries = 0;
+
+while (tries < 1500){
+tries++;
+
+const actualDiff = diff === "random" ? pick(["easy","medium","hard"]) : diff;
+const variable = chooseVariable();
+const solution = pickSolution(actualDiff);
+
+let built = null;
+if (actualDiff === "easy") built = easyControlledTemplate(variable, solution);
+if (actualDiff === "medium") built = mediumTemplate(variable, solution);
+if (actualDiff === "hard") built = hardTemplate(variable, solution);
+if (!built) continue;
+
+const { left, right } = built;
+if (!left || !right) continue;
+if (approxEqual(left.A, right.A)) continue;
+
+const derived = (right.B - left.B) / (left.A - right.A);
+if (!approxEqual(derived, solution)) continue;
+
+if (actualDiff !== "hard" && Math.abs(derived % 1) > 1e-9) continue;
+if (actualDiff === "hard" && Math.abs(derived % 1) > 1e-9){
+const rounded = Math.round(derived * 10) / 10;
+if (!approxEqual(rounded, derived)) continue;
+}
+
+const finalCoeff = left.A - right.A;
+const finalRightSide = right.B - left.B;
+
+if (actualDiff === "easy"){
+if (finalCoeff <= 0) continue;
+if (finalRightSide <= 0) continue;
+}
+
+const eq = left.str + " = " + right.str;
+const nums = left.nums.concat(right.nums).filter(n => !approxEqual(n, 0));
+
+if (!displayedNumberLimitOkay(nums)) continue;
+if (!noThreeDigitDisplay(eq)) continue;
+if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(eq)) continue;
+if (/\-\s+\d+\(\s*\-/.test(eq) && (actualDiff === "easy" || actualDiff === "medium")) continue;
+
+return {
+difficulty: actualDiff,
+variable,
+equation: eq,
+solution: derived,
+leftA: left.A,
+leftB: left.B,
+rightA: right.A,
+rightB: right.B,
+steps: buildSteps(left.A, left.B, right.A, right.B, variable, derived, eq)
+};
+}
+
+throw new Error("Could not generate a valid equation.");
+}
+
+function buildSteps(leftA, leftB, rightA, rightB, variable, solution, original){
+const steps = [];
+steps.push("Start with the equation: " + original);
+steps.push("Expand and simplify each side: " +
+linearText(leftA, leftB, variable) + " = " +
+linearText(rightA, rightB, variable));
+
+const coef = leftA - rightA;
+const rhsAfterMove = rightB;
+
+if (!approxEqual(rightA, 0)){
+steps.push("Move the variable terms to the left side: " +
+linearText(coef, leftB, variable) + " = " + fmt(rhsAfterMove));
+} else {
+steps.push("The variable terms are already on the left side.");
+}
+
+const constAfterMove = rightB - leftB;
+if (!approxEqual(leftB, 0)){
+const action = leftB > 0 ? "Subtract " + fmt(leftB) : "Add " + fmt(Math.abs(leftB));
+steps.push(action + " on both sides: " +
+linearText(coef, 0, variable) + " = " + fmt(constAfterMove));
+} else {
+steps.push("No constant needs to be moved from the left side.");
+}
+
+if (!approxEqual(coef, 1)){
+steps.push("Divide both sides by " + fmt(coef) + ": " + variable + " = " + fmt(solution));
+} else {
+steps.push("The variable is isolated: " + variable + " = " + fmt(solution));
+}
+
+return steps;
+}
+
+
+
+function oldDiff(){return state.difficulty==="foundation"?"easy":state.difficulty==="core"?"medium":"hard"}
+function generate(){return generateEquation(oldDiff())}
+
+function renderSteps(q){
+  const ol=document.createElement("ol");
+  q.steps.forEach(step=>{const li=document.createElement("li");li.textContent=step;ol.appendChild(li)});
+  $("#steps").innerHTML="";$("#steps").appendChild(ol);
+}
+
+function newQuestion(){
+  state.current=generate();state.evaluated=false;
+  $("#equation").textContent=state.current.equation;
+  $("#answerLabel").textContent=`Solve for ${state.current.variable}:`;
+  $("#answer").value="";$("#answer").disabled=false;$("#check").disabled=false;$("#next").hidden=true;
+  $("#feedback").textContent="";$("#feedback").className="feedback";
+  $("#showSteps").hidden=true;$("#steps").hidden=true;$("#steps").innerHTML="";
+  $("#answer").focus();
+}
+
+function checkAnswer(){
+  if(state.evaluated)return;
+  const parsed=parseAnswer($("#answer").value);
+  if(!parsed.ok){
+    $("#feedback").textContent="Enter a valid number first.";
+    $("#feedback").className="feedback incorrect";
+    return;
   }
+  state.evaluated=true;
+  $("#answer").disabled=true;$("#check").disabled=true;$("#next").hidden=false;
 
-  function pick(arr){
-    return arr[randInt(0, arr.length - 1)];
+  if(approxEqual(parsed.value,state.current.solution)){
+    state.correct++;
+    $("#feedback").textContent="Correct!";
+    $("#feedback").className="feedback correct";
+  }else{
+    state.incorrect++;
+    $("#feedback").textContent=`Incorrect. Correct answer: ${fmt(state.current.solution)}`;
+    $("#feedback").className="feedback incorrect";
+    $("#showSteps").hidden=false;
   }
+  $("#correctCount").textContent=state.correct;
+  $("#incorrectCount").textContent=state.incorrect;
+}
 
-  function chance(p){
-    return Math.random() < p;
+$("#check").addEventListener("click",checkAnswer);
+$("#next").addEventListener("click",newQuestion);
+$("#showSteps").addEventListener("click",()=>{renderSteps(state.current);$("#steps").hidden=false;$("#showSteps").hidden=true});
+$("#answer").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();state.evaluated?newQuestion():checkAnswer()}
+  else if(e.key==="Escape"&&!state.evaluated)$("#answer").value="";
+});
+
+$("#difficulty").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-diff]");if(!b)return;
+  state.difficulty=b.dataset.diff;
+  $$("#difficulty button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  if(state.mode==="practice")newQuestion();
+});
+$("#contrastBtn").addEventListener("click",()=>{
+  const on=document.body.classList.toggle("high-contrast");
+  $("#contrastBtn").setAttribute("aria-pressed",String(on));
+});
+
+function setMode(mode){
+  state.mode=mode;const p=mode==="practice";
+  $("#practice").style.display=p?"grid":"none";
+  $("#worksheet").style.display=p?"none":"block";
+  $("#practiceBtn").setAttribute("aria-pressed",String(p));
+  $("#worksheetBtn").setAttribute("aria-pressed",String(!p));
+  if(p)newQuestion();else if(!$("#wsList").children.length)renderWorksheet();
+}
+$("#practiceBtn").addEventListener("click",()=>setMode("practice"));
+$("#worksheetBtn").addEventListener("click",()=>setMode("worksheet"));
+
+function renderWorksheet(){
+  const list=$("#wsList");list.innerHTML="";
+  const count=Number($("#wsCount").value)||10;
+  for(let i=1;i<=count;i++){
+    const q=generate();
+    const item=document.createElement("div");item.className="ws-item";
+    item.innerHTML=`<div class="ws-q"><strong>${i}.</strong> ${q.equation}</div>
+      <div style="margin-top:7px">Answer: ____________________</div>
+      <button class="ws-reveal" aria-expanded="false">Reveal</button>
+      <div class="ws-answer">${q.variable} = ${fmt(q.solution)}</div>`;
+    const b=item.querySelector(".ws-reveal"),a=item.querySelector(".ws-answer");
+    b.addEventListener("click",()=>{const show=a.style.display==="block";a.style.display=show?"none":"block";b.textContent=show?"Reveal":"Hide";b.setAttribute("aria-expanded",String(!show))});
+    list.appendChild(item);
   }
+}
+$("#generateWs").addEventListener("click",renderWorksheet);
+$("#revealAll").addEventListener("click",()=>{$$("#wsList .ws-answer").forEach(a=>a.style.display="block");$$("#wsList .ws-reveal").forEach(b=>{b.textContent="Hide";b.setAttribute("aria-expanded","true")})});
+$("#hideAll").addEventListener("click",()=>{$$("#wsList .ws-answer").forEach(a=>a.style.display="none");$$("#wsList .ws-reveal").forEach(b=>{b.textContent="Reveal";b.setAttribute("aria-expanded","false")})});
+$("#printWs").addEventListener("click",()=>window.print());
 
-  function approxEqual(a, b){
-    return Math.abs(a - b) < 1e-9;
-  }
-
-  function fmt(n){
-    const rounded = Math.round(n * 10) / 10;
-    if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
-    return rounded.toFixed(1);
-  }
-
-  function parseAnswer(raw){
-    const s = String(raw).trim().replace(",", ".");
-    if (!/^-?\d+(\.\d+)?$/.test(s)) return { ok:false, value:null };
-    return { ok:true, value:parseFloat(s) };
-  }
-
-  function cap(s){
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  function escapeHtml(s){
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  function nonZeroInt(min, max){
-    let n = 0;
-    while (n === 0) n = randInt(min, max);
-    return n;
-  }
-
-  function termText(coeff, variable){
-    if (coeff === 1) return variable;
-    if (coeff === -1) return "-" + variable;
-    return fmt(coeff) + variable;
-  }
-
-  function linearText(a, b, variable){
-    const parts = [];
-    if (!approxEqual(a, 0)){
-      if (a === 1) parts.push(variable);
-      else if (a === -1) parts.push("-" + variable);
-      else parts.push(fmt(a) + variable);
-    }
-    if (!approxEqual(b, 0)){
-      const n = fmt(Math.abs(b));
-      if (parts.length === 0){
-        parts.push((b < 0 ? "-" : "") + n);
-      } else {
-        parts.push((b < 0 ? "- " : "+ ") + n);
+function runDevTests(){
+  const fails=[];const assert=(n,c)=>{if(!c)fails.push(n)};
+  assert("comma",parseAnswer("2,5").ok&&parseAnswer("2,5").value===2.5);
+  assert("junk rejected",!parseAnswer("12abc").ok);
+  assert("blank rejected",!parseAnswer("").ok);
+  for(let i=0;i<15000;i++){
+    for(const d of ["easy","medium","hard"]){
+      const q=generateEquation(d);
+      const lv=q.leftA*q.solution+q.leftB;
+      const rv=q.rightA*q.solution+q.rightB;
+      assert(d+" solves",approxEqual(lv,rv));
+      assert(d+" no three-digit display",noThreeDigitDisplay(q.equation));
+      assert(d+" no single-term bracket",!/\(\s*[-]?\d+[xyz]?\s*\)/.test(q.equation));
+      if(d==="easy"){
+        assert("easy positive integer",q.solution>0&&Number.isInteger(q.solution));
+        assert("easy positive final division",q.leftA-q.rightA>0&&q.rightB-q.leftB>0);
       }
-    }
-    return parts.join(" ") || "0";
-  }
-
-  function makeConst(value){
-    return {
-      a: 0,
-      b: value,
-      str: fmt(value),
-      nums: [Math.abs(value)]
-    };
-  }
-
-  function makeLinear(coeff, variable){
-    return {
-      a: coeff,
-      b: 0,
-      str: termText(coeff, variable),
-      nums: [Math.abs(coeff)]
-    };
-  }
-
-  function makeInsidePositiveLeading(variable){
-    const order = pick(["var-first", "const-first"]);
-
-    if (order === "var-first"){
-      const a = randInt(1, 4);
-      const b = randInt(1, 12) * (chance(0.5) ? 1 : -1);
-      return {
-        a,
-        b,
-        str: linearText(a, b, variable),
-        nums: [Math.abs(a), Math.abs(b)]
-      };
-    }
-
-    const constVal = randInt(2, 12);
-    const varCoeff = randInt(1, 4) * (chance(0.6) ? -1 : 1);
-    const str = varCoeff < 0
-      ? `${fmt(constVal)} - ${termText(Math.abs(varCoeff), variable)}`
-      : `${fmt(constVal)} + ${termText(varCoeff, variable)}`;
-
-    return {
-      a: varCoeff,
-      b: constVal,
-      str,
-      nums: [Math.abs(varCoeff), Math.abs(constVal)]
-    };
-  }
-
-  function makeEasyInsideBank(variable){
-    const type = pick([
-      "var-plus",
-      "var-minus",
-      "coeff-plus",
-      "coeff-minus",
-      "const-minus-var",
-      "const-minus-2var"
-    ]);
-
-    if (type === "var-plus"){
-      const b = randInt(1, 12);
-      return {
-        a: 1,
-        b: b,
-        str: `${variable} + ${fmt(b)}`,
-        nums: [1, Math.abs(b)]
-      };
-    }
-
-    if (type === "var-minus"){
-      const b = randInt(1, 12);
-      return {
-        a: 1,
-        b: -b,
-        str: `${variable} - ${fmt(b)}`,
-        nums: [1, Math.abs(b)]
-      };
-    }
-
-    if (type === "coeff-plus"){
-      const a = randInt(2, 4);
-      const b = randInt(1, 12);
-      return {
-        a,
-        b,
-        str: `${termText(a, variable)} + ${fmt(b)}`,
-        nums: [Math.abs(a), Math.abs(b)]
-      };
-    }
-
-    if (type === "coeff-minus"){
-      const a = randInt(2, 4);
-      const b = randInt(1, 12);
-      return {
-        a,
-        b: -b,
-        str: `${termText(a, variable)} - ${fmt(b)}`,
-        nums: [Math.abs(a), Math.abs(b)]
-      };
-    }
-
-    if (type === "const-minus-var"){
-      const c = randInt(2, 12);
-      return {
-        a: -1,
-        b: c,
-        str: `${fmt(c)} - ${variable}`,
-        nums: [1, Math.abs(c)]
-      };
-    }
-
-    const c = randInt(3, 12);
-    return {
-      a: -2,
-      b: c,
-      str: `${fmt(c)} - ${termText(2, variable)}`,
-      nums: [2, Math.abs(c)]
-    };
-  }
-
-  function makeBracket(multiplier, inside, variable, sign = 1){
-    const prefix = (sign === -1 ? "- " : "") + fmt(multiplier);
-    return {
-      a: sign * multiplier * inside.a,
-      b: sign * multiplier * inside.b,
-      str: prefix + "(" + inside.str + ")",
-      nums: [Math.abs(multiplier)].concat(inside.nums)
-    };
-  }
-
-  function makeExpression(terms){
-    let A = 0;
-    let B = 0;
-    let nums = [];
-    let out = "";
-
-    terms.forEach((t, i) => {
-      A += t.a;
-      B += t.b;
-      nums = nums.concat(t.nums || []);
-      const s = String(t.str).trim();
-
-      if (i === 0){
-        out += s;
-      } else if (s.startsWith("- ")){
-        out += " - " + s.slice(2);
-      } else if (s.startsWith("-")){
-        out += " - " + s.slice(1);
-      } else {
-        out += " + " + s;
-      }
-    });
-
-    out = out.replace(/\+\s-\s/g, "- ");
-    out = out.replace(/\b1([xyz])/g, "$1");
-    out = out.replace(/\b-1([xyz])/g, "-$1");
-    out = out.replace(/\s+/g, " ").trim();
-
-    return { A, B, str: out, nums };
-  }
-
-  function chooseVariable(){
-    return pick(["x","y","z"]);
-  }
-
-  function pickSolution(diff){
-    if (diff === "easy"){
-      return randInt(1, 12);
-    }
-
-    if (diff === "medium"){
-      return randInt(1, 12);
-    }
-
-    if (chance(0.08)){
-      const base = randInt(1, 10);
-      const sign = chance(0.18) ? -1 : 1;
-      return sign * (base + 0.5);
-    }
-
-    if (chance(0.18)){
-      return randInt(-10, -1);
-    }
-
-    return randInt(1, 12);
-  }
-
-  function displayedNumberLimitOkay(nums){
-    return nums.every(n => n <= 99 + 1e-9);
-  }
-
-  function noThreeDigitDisplay(eq){
-    const stripped = eq.replace(/\d\.\d/g, "");
-    return !/\b\d{3,}\b/.test(stripped);
-  }
-
-  function easyControlledTemplate(variable, solution){
-    const template = pick([1,2,3,4]);
-    const inside = makeEasyInsideBank(variable);
-    const m = randInt(2, 6);
-
-    if (template === 1){
-      const left = makeExpression([makeBracket(m, inside, variable, 1)]);
-      if (left.A <= 1) return null;
-
-      const cMax = Math.min(8, left.A - 1);
-      if (cMax < 1) return null;
-
-      const c = randInt(1, cMax);
-      const finalCoeff = left.A - c;
-      const rhsConst = left.B + finalCoeff * solution;
-      if (Math.abs(rhsConst) > 99) return null;
-
-      const right = makeExpression([makeLinear(c, variable), makeConst(rhsConst)]);
-      return { left, right };
-    }
-
-    if (template === 2){
-      const bracket = makeBracket(m, inside, variable, 1);
-      const minA = Math.max(1, 1 - bracket.a);
-      if (minA > 8) return null;
-
-      const a = randInt(minA, 8);
-      const finalCoeff = a + bracket.a;
-      if (finalCoeff <= 0) return null;
-
-      const d = bracket.b + finalCoeff * solution;
-      if (Math.abs(d) > 99) return null;
-
-      const left = makeExpression([makeLinear(a, variable), bracket]);
-      const right = makeExpression([makeConst(d)]);
-      return { left, right };
-    }
-
-    if (template === 3){
-      const bracket = makeBracket(m, inside, variable, 1);
-      const minA = Math.max(1, 1 - bracket.a);
-      if (minA > 8) return null;
-
-      const a = randInt(minA, 8);
-      const finalCoeff = a + bracket.a;
-      if (finalCoeff <= 0) return null;
-
-      const d = bracket.b + finalCoeff * solution;
-      if (Math.abs(d) > 99) return null;
-
-      const left = makeExpression([makeConst(d)]);
-      const right = makeExpression([makeLinear(a, variable), bracket]);
-      return { left, right };
-    }
-
-    const right = makeExpression([makeBracket(m, inside, variable, 1)]);
-    if (right.A <= 1) return null;
-
-    const aMax = Math.min(8, right.A - 1);
-    if (aMax < 1) return null;
-
-    const a = randInt(1, aMax);
-    const finalCoeff = right.A - a;
-    const d = right.B + finalCoeff * solution;
-    if (Math.abs(d) > 99) return null;
-
-    const left = makeExpression([makeLinear(a, variable), makeConst(d)]);
-    return { left, right };
-  }
-
-  function mediumTemplate(variable, solution){
-    const template = pick([1,2,3,4,5]);
-
-    if (template === 1){
-      const a = nonZeroInt(-8, 8);
-      const c = nonZeroInt(-8, 8);
-      const b = randInt(-20, 20);
-      const d = (a + c) * solution + b;
-      if (Math.abs(d) > 99) return null;
-      const left = makeExpression([makeConst(d)]);
-      const right = makeExpression([makeLinear(a, variable), makeConst(b), makeLinear(c, variable)]);
-      return { left, right };
-    }
-
-    if (template === 2){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 7);
-      const left = makeExpression([makeBracket(m, inside, variable, 1)]);
-      const d = nonZeroInt(-8, 8);
-      const e = randInt(-20, 20);
-      const c = left.A * solution + left.B - d * solution - e;
-      if (Math.abs(c) > 99) return null;
-      const right = makeExpression([makeConst(c), makeLinear(d, variable), makeConst(e)]);
-      return { left, right };
-    }
-
-    if (template === 3){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 7);
-      const c = randInt(5, 40);
-      const left = makeExpression([makeConst(c), makeBracket(m, inside, variable, -1)]);
-      const e = nonZeroInt(-8, 8);
-      const d = left.A * solution + left.B - e * solution;
-      if (Math.abs(d) > 99) return null;
-      const right = makeExpression([makeConst(d), makeLinear(e, variable)]);
-      return { left, right };
-    }
-
-    if (template === 4){
-      const inside = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 7);
-      const a = nonZeroInt(-8, 8);
-      const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, -1)]);
-      const e = nonZeroInt(-8, 8);
-      const d = left.A * solution + left.B + e * solution;
-      if (Math.abs(d) > 99) return null;
-      const right = makeExpression([makeConst(d), makeLinear(-e, variable)]);
-      return { left, right };
-    }
-
-    const inside = makeInsidePositiveLeading(variable);
-    const m = randInt(2, 7);
-    const a = nonZeroInt(-8, 8);
-    const e = nonZeroInt(-8, 8);
-    const f = randInt(-20, 20);
-    const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside, variable, 1)]);
-    const d = left.A * solution + left.B - e * solution - f;
-    if (Math.abs(d) > 99) return null;
-    const right = makeExpression([makeConst(d), makeLinear(e, variable), makeConst(f)]);
-    return { left, right };
-  }
-
-  function hardTemplate(variable, solution){
-    const template = pick([1,2,3,4]);
-
-    if (template === 1){
-      const inside1 = makeInsidePositiveLeading(variable);
-      const inside2 = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 8);
-      const n = randInt(2, 6);
-      const a = nonZeroInt(-7, 7);
-      const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(-a, variable)]);
-      const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
-      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
-      if (Math.abs(d) > 99) return null;
-      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
-      return { left, right };
-    }
-
-    if (template === 2){
-      const inside1 = makeInsidePositiveLeading(variable);
-      const inside2 = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 8);
-      const n = randInt(2, 6);
-      const c = randInt(5, 60);
-      const left = makeExpression([makeConst(c), makeBracket(m, inside1, variable, -1)]);
-      const rightBase = makeExpression([makeBracket(n, inside2, variable, -1)]);
-      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
-      if (Math.abs(d) > 99) return null;
-      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, -1)]);
-      return { left, right };
-    }
-
-    if (template === 3){
-      const inside1 = makeInsidePositiveLeading(variable);
-      const inside2 = makeInsidePositiveLeading(variable);
-      const m = randInt(2, 8);
-      const n = randInt(2, 6);
-      const a = nonZeroInt(-7, 7);
-      const left = makeExpression([makeBracket(m, inside1, variable, 1), makeLinear(a, variable)]);
-      const rightBase = makeExpression([makeBracket(n, inside2, variable, 1)]);
-      const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
-      if (Math.abs(d) > 99) return null;
-      const right = makeExpression([makeConst(d), makeBracket(n, inside2, variable, 1)]);
-      return { left, right };
-    }
-
-    const inside1 = makeInsidePositiveLeading(variable);
-    const inside2 = makeInsidePositiveLeading(variable);
-    const m = randInt(2, 8);
-    const n = randInt(2, 6);
-    const a = nonZeroInt(-7, 7);
-    const e = nonZeroInt(-7, 7);
-    const left = makeExpression([makeLinear(a, variable), makeBracket(m, inside1, variable, -1)]);
-    const rightBase = makeExpression([makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
-    const d = left.A * solution + left.B - rightBase.A * solution - rightBase.B;
-    if (Math.abs(d) > 99) return null;
-    const right = makeExpression([makeConst(d), makeLinear(e, variable), makeBracket(n, inside2, variable, -1)]);
-    return { left, right };
-  }
-
-  function generateEquation(diff){
-    let tries = 0;
-
-    while (tries < 1500){
-      tries++;
-
-      const actualDiff = diff === "random" ? pick(["easy","medium","hard"]) : diff;
-      const variable = chooseVariable();
-      const solution = pickSolution(actualDiff);
-
-      let built = null;
-      if (actualDiff === "easy") built = easyControlledTemplate(variable, solution);
-      if (actualDiff === "medium") built = mediumTemplate(variable, solution);
-      if (actualDiff === "hard") built = hardTemplate(variable, solution);
-      if (!built) continue;
-
-      const { left, right } = built;
-      if (!left || !right) continue;
-      if (approxEqual(left.A, right.A)) continue;
-
-      const derived = (right.B - left.B) / (left.A - right.A);
-      if (!approxEqual(derived, solution)) continue;
-
-      if (actualDiff !== "hard" && Math.abs(derived % 1) > 1e-9) continue;
-      if (actualDiff === "hard" && Math.abs(derived % 1) > 1e-9){
-        const rounded = Math.round(derived * 10) / 10;
-        if (!approxEqual(rounded, derived)) continue;
-      }
-
-      const finalCoeff = left.A - right.A;
-      const finalRightSide = right.B - left.B;
-
-      if (actualDiff === "easy"){
-        if (finalCoeff <= 0) continue;
-        if (finalRightSide <= 0) continue;
-      }
-
-      const eq = left.str + " = " + right.str;
-      const nums = left.nums.concat(right.nums).filter(n => !approxEqual(n, 0));
-
-      if (!displayedNumberLimitOkay(nums)) continue;
-      if (!noThreeDigitDisplay(eq)) continue;
-      if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(eq)) continue;
-      if (/\-\s+\d+\(\s*\-/.test(eq) && (actualDiff === "easy" || actualDiff === "medium")) continue;
-
-      return {
-        difficulty: actualDiff,
-        variable,
-        equation: eq,
-        solution: derived,
-        leftA: left.A,
-        leftB: left.B,
-        rightA: right.A,
-        rightB: right.B,
-        steps: buildSteps(left.A, left.B, right.A, right.B, variable, derived, eq)
-      };
-    }
-
-    throw new Error("Could not generate a valid equation.");
-  }
-
-  function buildSteps(leftA, leftB, rightA, rightB, variable, solution, original){
-    const steps = [];
-    steps.push("Start with the equation: " + original);
-    steps.push("Expand and simplify each side: " +
-      linearText(leftA, leftB, variable) + " = " +
-      linearText(rightA, rightB, variable));
-
-    const coef = leftA - rightA;
-    const rhsAfterMove = rightB;
-
-    if (!approxEqual(rightA, 0)){
-      steps.push("Move the variable terms to the left side: " +
-        linearText(coef, leftB, variable) + " = " + fmt(rhsAfterMove));
-    } else {
-      steps.push("The variable terms are already on the left side.");
-    }
-
-    const constAfterMove = rightB - leftB;
-    if (!approxEqual(leftB, 0)){
-      const action = leftB > 0 ? "Subtract " + fmt(leftB) : "Add " + fmt(Math.abs(leftB));
-      steps.push(action + " on both sides: " +
-        linearText(coef, 0, variable) + " = " + fmt(constAfterMove));
-    } else {
-      steps.push("No constant needs to be moved from the left side.");
-    }
-
-    if (!approxEqual(coef, 1)){
-      steps.push("Divide both sides by " + fmt(coef) + ": " + variable + " = " + fmt(solution));
-    } else {
-      steps.push("The variable is isolated: " + variable + " = " + fmt(solution));
-    }
-
-    return steps;
-  }
-
-  function setStatus(line, detail, kind){
-    els.statusLine.textContent = line || "";
-    els.statusDetail.textContent = detail || "";
-    els.statusLine.className = "status-line";
-    if (kind === "good") els.statusLine.classList.add("good-text");
-    if (kind === "bad") els.statusLine.classList.add("bad-text");
-    if (kind === "warn") els.statusLine.classList.add("warn-text");
-  }
-
-  function clearStatus(){
-    setStatus("", "", "");
-    els.stepsBox.classList.remove("show");
-    els.stepsBox.innerHTML = "";
-  }
-
-  function renderSteps(){
-    if (!state.current) return;
-    const ol = document.createElement("ol");
-    state.current.steps.forEach(step => {
-      const li = document.createElement("li");
-      li.textContent = step;
-      ol.appendChild(li);
-    });
-    els.stepsBox.innerHTML = "";
-    els.stepsBox.appendChild(ol);
-  }
-
-  function renderSummary(){
-    els.sumTotal.textContent = state.total;
-    els.sumCorrect.textContent = state.correct;
-    const accuracy = state.total ? Math.round((state.correct / state.total) * 100) : 0;
-    els.sumAccuracy.textContent = accuracy + "%";
-    els.sumScore.textContent = state.score;
-    els.sumStreak.textContent = state.streak;
-    els.sumBestStreak.textContent = state.bestStreak;
-
-    els.wrongList.innerHTML = "";
-    if (state.wrongItems.length === 0){
-      els.wrongList.innerHTML = '<div class="small-note">No incorrect answers yet.</div>';
-      return;
-    }
-
-    state.wrongItems.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "wrong-item";
-      div.innerHTML =
-        "<strong>" + escapeHtml(item.equation) + "</strong><br>" +
-        "Your answer: " + escapeHtml(item.your) + "<br>" +
-        "Correct answer: " + escapeHtml(item.correct) + "<br>" +
-        "Reason: " + escapeHtml(item.reason);
-      els.wrongList.appendChild(div);
-    });
-  }
-
-  function beep(freq, duration, type){
-    if (!state.soundOn) return;
-    try{
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = type || "sine";
-      osc.frequency.value = freq;
-      gain.gain.value = 0.03;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      setTimeout(() => {
-        osc.stop();
-        ctx.close();
-      }, duration);
-    } catch(err){}
-  }
-
-  function playCorrect(){
-    beep(740, 90, "triangle");
-    setTimeout(() => beep(920, 110, "triangle"), 100);
-  }
-
-  function playWrong(){
-    beep(220, 160, "sawtooth");
-  }
-
-  function updatePills(){
-    els.difficultyPill.textContent = "Difficulty: " + cap(state.difficulty);
-    els.timerPill.textContent = state.timerOn ? ("Timer: " + state.timeLeft + "s") : "Timer: Off";
-  }
-
-  function stopTimer(){
-    if (state.timerId){
-      clearInterval(state.timerId);
-      state.timerId = null;
+      if(d==="medium")assert("medium positive integer",q.solution>0&&Number.isInteger(q.solution));
     }
   }
+  console.log(fails.length?"DEV TESTS: FAIL":"DEV TESTS: PASS",fails);
+}
 
-  function startTimer(){
-    stopTimer();
-    if (!state.timerOn || state.timerSecs <= 0){
-      state.timeLeft = 0;
-      updatePills();
-      return;
-    }
-
-    state.timeLeft = state.timerSecs;
-    updatePills();
-
-    state.timerId = setInterval(() => {
-      state.timeLeft--;
-      updatePills();
-
-      if (state.timeLeft <= 0){
-        stopTimer();
-        if (!state.submittedThisRound){
-          handleTimeout();
-        }
-      }
-    }, 1000);
-  }
-
-  function handleTimeout(){
-    state.submittedThisRound = true;
-    state.canAdvance = false;
-    state.total++;
-    state.streak = 0;
-    playWrong();
-    state.wrongItems.unshift({
-      equation: state.current.equation,
-      your: "(time)",
-      correct: fmt(state.current.solution),
-      reason: "Time ran out"
-    });
-    setStatus("Time's up.", "The correct answer was " + fmt(state.current.solution) + ".", "bad");
-    renderSteps();
-    renderSummary();
-  }
-
-  function newProblem(){
-    clearStatus();
-    stopTimer();
-    state.current = generateEquation(state.difficulty);
-    state.canAdvance = false;
-    state.submittedThisRound = false;
-    els.equationText.textContent = state.current.equation;
-    els.answerInput.value = "";
-    updatePills();
-    startTimer();
-    els.answerInput.focus();
-  }
-
-  function submitAnswer(){
-    if (!state.current) return;
-
-    if (state.canAdvance){
-      nextProblem();
-      return;
-    }
-
-    if (state.submittedThisRound) return;
-
-    const parsed = parseAnswer(els.answerInput.value);
-    if (!parsed.ok){
-      setStatus("Enter a valid number.", "Type only the value of the variable.", "warn");
-      return;
-    }
-
-    state.submittedThisRound = true;
-    stopTimer();
-
-    if (approxEqual(parsed.value, state.current.solution)){
-      state.correct++;
-      state.total++;
-      state.streak++;
-      state.bestStreak = Math.max(state.bestStreak, state.streak);
-      state.score += 10;
-      let detail = "Press Enter or click Next to continue.";
-      if (state.streak % 5 === 0){
-        state.score += 5;
-        detail += " Streak bonus +5.";
-      }
-      state.canAdvance = true;
-      playCorrect();
-      setStatus("Correct!", detail, "good");
-    } else {
-      state.total++;
-      state.streak = 0;
-      playWrong();
-      state.wrongItems.unshift({
-        equation: state.current.equation,
-        your: els.answerInput.value.trim() || "(blank)",
-        correct: fmt(state.current.solution),
-        reason: "Incorrect value"
-      });
-      setStatus("Not correct.", "The correct answer was " + fmt(state.current.solution) + ".", "bad");
-      renderSteps();
-    }
-
-    renderSummary();
-  }
-
-  function nextProblem(){
-    newProblem();
-  }
-
-  function clearInput(){
-    els.answerInput.value = "";
-    els.answerInput.focus();
-  }
-
-  function setMode(mode){
-    state.mode = mode;
-    els.modeGameBtn.classList.toggle("active", mode === "game");
-    els.modeWorksheetBtn.classList.toggle("active", mode === "worksheet");
-    els.gamePanel.style.display = mode === "game" ? "" : "none";
-    els.worksheetPanel.style.display = mode === "worksheet" ? "" : "none";
-  }
-
-  function setDifficulty(diff){
-    state.difficulty = diff;
-    document.querySelectorAll(".diff-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.diff === diff);
-    });
-    updatePills();
-    if (state.mode === "game") newProblem();
-  }
-
-  function setTimerOff(){
-    state.timerOn = false;
-    state.timerSecs = 0;
-    document.querySelectorAll(".timer-btn").forEach(btn => btn.classList.remove("active"));
-    els.timerOffBtn.classList.add("active");
-    updatePills();
-    if (state.mode === "game") newProblem();
-  }
-
-  function setTimerSecs(secs){
-    state.timerOn = true;
-    state.timerSecs = secs;
-    els.timerOffBtn.classList.remove("active");
-    document.querySelectorAll(".timer-btn").forEach(btn => {
-      btn.classList.toggle("active", Number(btn.dataset.secs) === secs);
-    });
-    if (state.mode === "game") newProblem();
-  }
-
-  function updateVisuals(){
-    document.body.classList.toggle("high-contrast", state.highContrast);
-    document.body.classList.toggle("big-ui", state.bigFonts);
-    els.soundBtn.classList.toggle("active", state.soundOn);
-    els.contrastBtn.classList.toggle("active", state.highContrast);
-    els.fontBtn.classList.toggle("active", state.bigFonts);
-  }
-
-  function buildWorksheet(){
-    state.worksheetItems = [];
-    els.worksheetList.innerHTML = "";
-    els.worksheetMeta.textContent = "Worksheet: " + state.worksheetSize + " problems";
-
-    for (let i = 0; i < state.worksheetSize; i++){
-      const q = generateEquation(state.difficulty);
-      state.worksheetItems.push(q);
-
-      const item = document.createElement("div");
-      item.className = "ws-item";
-
-      const eq = document.createElement("div");
-      eq.className = "ws-equation";
-      eq.textContent = (i + 1) + ". " + q.equation;
-
-      const btn = document.createElement("button");
-      btn.className = "btn secondary";
-      btn.textContent = "Reveal";
-
-      const ans = document.createElement("div");
-      ans.className = "ws-answer";
-      ans.textContent = "Answer: " + fmt(q.solution);
-
-      btn.addEventListener("click", () => {
-        const show = ans.classList.toggle("show");
-        btn.textContent = show ? "Hide" : "Reveal";
-      });
-
-      item.appendChild(eq);
-      item.appendChild(btn);
-      item.appendChild(ans);
-      els.worksheetList.appendChild(item);
-    }
-  }
-
-  function revealAll(show){
-    document.querySelectorAll(".ws-answer").forEach(el => {
-      el.classList.toggle("show", show);
-    });
-    document.querySelectorAll("#worksheetList .btn").forEach(btn => {
-      btn.textContent = show ? "Hide" : "Reveal";
-    });
-  }
-
-  function initEvents(){
-    els.modeGameBtn.addEventListener("click", () => setMode("game"));
-    els.modeWorksheetBtn.addEventListener("click", () => setMode("worksheet"));
-
-    document.querySelectorAll(".diff-btn").forEach(btn => {
-      btn.addEventListener("click", () => setDifficulty(btn.dataset.diff));
-    });
-
-    els.timerOffBtn.addEventListener("click", setTimerOff);
-    document.querySelectorAll(".timer-btn").forEach(btn => {
-      btn.addEventListener("click", () => setTimerSecs(Number(btn.dataset.secs)));
-    });
-
-    document.querySelectorAll(".ws-size").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.worksheetSize = Number(btn.dataset.size);
-        document.querySelectorAll(".ws-size").forEach(b => b.classList.toggle("active", b === btn));
-        els.worksheetMeta.textContent = "Worksheet: " + state.worksheetSize + " problems";
-      });
-    });
-
-    els.soundBtn.addEventListener("click", () => {
-      state.soundOn = !state.soundOn;
-      updateVisuals();
-    });
-
-    els.contrastBtn.addEventListener("click", () => {
-      state.highContrast = !state.highContrast;
-      updateVisuals();
-    });
-
-    els.fontBtn.addEventListener("click", () => {
-      state.bigFonts = !state.bigFonts;
-      updateVisuals();
-    });
-
-    els.submitBtn.addEventListener("click", submitAnswer);
-    els.nextBtn.addEventListener("click", nextProblem);
-    els.clearBtn.addEventListener("click", clearInput);
-    els.newBtn.addEventListener("click", newProblem);
-
-    els.showStepsBtn.addEventListener("click", () => {
-      if (!state.current) return;
-      if (els.stepsBox.innerHTML.trim() === "") renderSteps();
-      els.stepsBox.classList.toggle("show");
-    });
-
-    els.generateWorksheetBtn.addEventListener("click", buildWorksheet);
-    els.revealAllBtn.addEventListener("click", () => revealAll(true));
-    els.hideAllBtn.addEventListener("click", () => revealAll(false));
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape"){
-        e.preventDefault();
-        clearInput();
-      }
-      if (e.key === "Enter" && state.mode === "game"){
-        e.preventDefault();
-        if (state.canAdvance){
-          nextProblem();
-        } else {
-          submitAnswer();
-        }
-      }
-    });
-  }
-
-  function runDevTestsIfNeeded(){
-    const params = new URLSearchParams(location.search);
-    if (params.get("dev") !== "1") return;
-
-    els.devPanel.style.display = "";
-    const lines = [];
-    let pass = 0;
-    let fail = 0;
-
-    function test(name, fn){
-      try{
-        const ok = !!fn();
-        if (ok){
-          lines.push("PASS - " + name);
-          pass++;
-        } else {
-          lines.push("FAIL - " + name);
-          fail++;
-        }
-      } catch(err){
-        lines.push("FAIL - " + name + " -> " + err.message);
-        fail++;
-      }
-    }
-
-    test("Parses integer input", () => parseAnswer("5").value === 5);
-    test("Parses comma decimal input", () => approxEqual(parseAnswer("2,5").value, 2.5));
-
-    test("Easy generator has no 3-digit numbers", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("easy");
-        if (!noThreeDigitDisplay(q.equation)) return false;
-      }
-      return true;
-    });
-
-    test("Medium generator has no 3-digit numbers", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("medium");
-        if (!noThreeDigitDisplay(q.equation)) return false;
-      }
-      return true;
-    });
-
-    test("Hard generator has no 3-digit numbers", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("hard");
-        if (!noThreeDigitDisplay(q.equation)) return false;
-      }
-      return true;
-    });
-
-    test("No single-term brackets in easy", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("easy");
-        if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(q.equation)) return false;
-      }
-      return true;
-    });
-
-    test("No single-term brackets in medium", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("medium");
-        if (/\(\s*[-]?\d+[xyz]?\s*\)/.test(q.equation)) return false;
-      }
-      return true;
-    });
-
-    test("No minus-outside with negative-first-inside in easy/medium", () => {
-      for (let i = 0; i < 120; i++){
-        const q1 = generateEquation("easy");
-        const q2 = generateEquation("medium");
-        if (/\-\s+\d+\(\s*\-/.test(q1.equation)) return false;
-        if (/\-\s+\d+\(\s*\-/.test(q2.equation)) return false;
-      }
-      return true;
-    });
-
-    test("Easy answers are positive integers only", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("easy");
-        if (q.solution <= 0) return false;
-        if (Math.abs(q.solution % 1) > 1e-9) return false;
-      }
-      return true;
-    });
-
-    test("Easy final step is positive divided by positive only", () => {
-      for (let i = 0; i < 200; i++){
-        const q = generateEquation("easy");
-        const finalCoeff = q.leftA - q.rightA;
-        const finalRightSide = q.rightB - q.leftB;
-        if (finalCoeff <= 0) return false;
-        if (finalRightSide <= 0) return false;
-      }
-      return true;
-    });
-
-    test("Medium answers are positive integers only", () => {
-      for (let i = 0; i < 100; i++){
-        const q = generateEquation("medium");
-        if (q.solution <= 0) return false;
-        if (Math.abs(q.solution % 1) > 1e-9) return false;
-      }
-      return true;
-    });
-
-    test("Hard answers solve correctly", () => {
-      for (let i = 0; i < 120; i++){
-        const q = generateEquation("hard");
-        const leftVal = q.leftA * q.solution + q.leftB;
-        const rightVal = q.rightA * q.solution + q.rightB;
-        if (!approxEqual(leftVal, rightVal)) return false;
-      }
-      return true;
-    });
-
-    test("Variables are only x y z", () => {
-      for (let i = 0; i < 80; i++){
-        const q = generateEquation(pick(["easy","medium","hard"]));
-        if (!["x","y","z"].includes(q.variable)) return false;
-      }
-      return true;
-    });
-
-    test("Correct answer does not auto-advance", () => {
-      const q = generateEquation("easy");
-      state.current = q;
-      state.submittedThisRound = false;
-      state.canAdvance = false;
-      els.answerInput.value = fmt(q.solution);
-      submitAnswer();
-      return state.canAdvance === true;
-    });
-
-    test("Worksheet count works", () => {
-      state.worksheetSize = 10;
-      buildWorksheet();
-      return document.querySelectorAll(".ws-item").length === 10;
-    });
-
-    lines.unshift("Developer test results");
-    lines.push("");
-    lines.push("Passed: " + pass);
-    lines.push("Failed: " + fail);
-    els.devResults.textContent = lines.join("\n");
-  }
-
-  function init(){
-    initEvents();
-    updateVisuals();
-    renderSummary();
-    updatePills();
-    buildWorksheet();
-    newProblem();
-    runDevTestsIfNeeded();
-  }
-
-  init();
-})();
+newQuestion();
+if(new URLSearchParams(location.search).get("dev")==="1")runDevTests();
 </script>
 </body>
 </html>
